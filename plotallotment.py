@@ -139,7 +139,7 @@ def pltallotment(app):
     pltframe.place(x=158,y=82)
     backframe = ct.CTkFrame(pltframe,fg_color="white")
     backframe.place(x=0,y=0)
-    photo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\back.png")
+    photo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\back.png")
     homebtn = ct.CTkButton(backframe,image=photo_image,text="",font=fontbtn,width=30,hover_color="white",fg_color="white",bg_color="white",
                             height=20,cursor="hand2",command=lambda:pltframe.place_forget())
     homebtn.pack(side="left")

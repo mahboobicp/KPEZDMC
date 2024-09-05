@@ -13,7 +13,7 @@ app.geometry("1020x662+200+5")
 app.resizable(0,0)
 app.config(background="white")
 app.title("KPEZDMC IMS")
-logo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\industry.png")
+logo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\industry.png")
 headings = ct.CTkLabel(app,width=1180,image=logo_image,compound="left",height=60,text=" KPEZDMC Industries Information System",
                        font=("Poppins",28,"bold"),text_color="#f8f9f9",fg_color="#283747",anchor="w")
 
@@ -63,15 +63,15 @@ logstext.pack(padx=60,pady=(0,450))
 # Start of menu Frame
 
 
-photo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\logo.png")
-alt_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\alt.png")
-factory_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\factory.png")
-owner_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\owner.png")
-report_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\report.png")
-payment_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\payment.png")
-transfer_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\transfer.png")
-switch_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\switch.png")
-split_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\split.png")
+photo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\logo.png")
+alt_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\alt.png")
+factory_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\factory1.png")
+owner_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\owner.png")
+report_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\report.png")
+payment_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\payment1.png")
+transfer_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\transfer.png")
+switch_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\switch.png")
+split_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\split.png")
 logimage =ct.CTkLabel(menuframe,image=photo_image,width=40,height=40,text="",anchor="e")
 logimage.pack(padx=(20,20),pady=(20,60))
 menulable = ct.CTkLabel(menuframe,text="Menu",font=fontlmenu,text_color="#f8f9f9",
