@@ -7,6 +7,43 @@ import mysql.connector
 from datetime import datetime
 from mysql.connector import Error
 import database as db
+#Search Record
+
+def search_record(searchcombo,searchentry):
+    con=searchcombo.get()
+    value=searchentry.get()
+    if value == '':
+        messagebox.showerror("Error","Enter Value to Search")
+    else:
+        if con == "Plot #":
+            con = "p.plot_number"
+        elif con == "Name":
+            con = "o.ownname"
+        elif con == "CNIC":
+            con = "o.CNIC"
+        cur,con = db.database_connect()
+        cur.execute("use kpezdmc_version1")
+        query = """f"select p.plot_number,p.zone,p.Area,o.CNIC,o.ownname,o.Mobile,po.start_date
+                from plots p
+                join
+                plot_ownership po
+                on p.id = po.plot_id
+                join
+                ownertable o
+                on o.id = po.owner_id
+                where {con} LIKE %{value}%";"""
+        cur.execute(f"select p.plot_number,p.zone,p.Area,o.CNIC,o.ownname,o.Mobile,po.start_date
+                from plots p
+                join
+                plot_ownership po
+                on p.id = po.plot_id
+                join
+                ownertable o
+                on o.id = po.owner_id
+                where {con} like '%{value}%'")
+        result = cur.fetchall()
+        print(result)
+
 # Clear Fields
 def clear_fields(plotnumberentery,zonecombo,
                 locationentery,landtypecombo,plotstatuscombo,areaentery,
@@ -296,7 +333,7 @@ def pltallotment(app):
     searchentry = ct.CTkEntry(btnframe,placeholder_text="Search By",width=150)
     searchentry.grid(row=0,column=4,padx=10)
 
-    searchbtn = ct.CTkButton(btnframe,text="Search",width=100)
+    searchbtn = ct.CTkButton(btnframe,text="Search",width=100,command=lambda:search_record(searchcombo,searchentry))
     searchbtn.grid(row=0,column=5,padx=10)
 
     ## Start of treeview
