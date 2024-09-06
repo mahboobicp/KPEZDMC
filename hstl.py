@@ -160,50 +160,50 @@ def pltallotment(app):
     fontlmenu = ("Poppins",18,"bold")
     fontentry = ("Poppins",10,"bold")
     fontbtn = ("Arial",16,"bold")
-    pltframe = ct.CTkFrame(app,width=900,height=600,fg_color="#17202a")
+    pltframe = ct.CTkFrame(app,width=900,height=600,fg_color="white")
     pltframe.place(x=158,y=82)
-    backframe = ct.CTkFrame(pltframe,fg_color="#17202a")
+    backframe = ct.CTkFrame(pltframe,fg_color="white")
     backframe.place(x=0,y=0)
-    photo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\back.png")
-    homebtn = ct.CTkButton(backframe,image=photo_image,text="",font=fontbtn,width=30,hover_color="#1b4f72",fg_color="#17202a",bg_color="#17202a",
+    photo_image = tkinter.PhotoImage(file=r"D:\KPEZDMC\images\back.png")
+    homebtn = ct.CTkButton(backframe,image=photo_image,text="",font=fontbtn,width=30,hover_color="white",fg_color="white",bg_color="white",
                             height=20,cursor="hand2",command=lambda:pltframe.place_forget())
     homebtn.pack(side="left")
-    plotframe = ct.CTkFrame(pltframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
+    plotframe = ct.CTkFrame(pltframe,fg_color="#2c3e50",bg_color="white",corner_radius=5,border_width=3,border_color="#196f3d")
     #plotframe.grid(row=1,column=0)
     plotframe.place(x=0,y=28)
-    ownerframe = ct.CTkFrame(pltframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e")
+    ownerframe = ct.CTkFrame(pltframe,fg_color="#2c3e50",bg_color="white",corner_radius=5,border_width=3,border_color="#196f3d")
     ownerframe.place(x=0,y=155)
-    btnframe = ct.CTkFrame(pltframe,fg_color="#17202a")
+    btnframe = ct.CTkFrame(pltframe,fg_color="white")
     btnframe.place(x=40,y=285)
-    treeframe =ct.CTkFrame(pltframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
+    treeframe =ct.CTkFrame(pltframe,fg_color="darkblue")
     treeframe.place(x=0,y=320)
     # Plot details Frame
 
     plotdetails = ct.CTkLabel(plotframe,text="Enter Plot Details",font=("Arial",14,"bold"),
-                            text_color="#f8f9f9",bg_color="#808b96",width=850,height=20)
+                            text_color="#f8f9f9",bg_color="Green",width=850,height=20)
     plotdetails.grid(row=0,column=0,columnspan=6)
     plotnumberlable = ct.CTkLabel(plotframe,text="Plot #  ",font=fontlable,text_color="#f8f9f9")
     plotnumberlable.grid(row=1,column=0,padx=20,pady=12,sticky="w")
 
     plotnumberentery = ct.CTkEntry(plotframe,font=fontentry,width=180,
-                                placeholder_text="Enter the Number",border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",placeholder_text_color="white")
+                                placeholder_text="Enter the Number",border_width=2,border_color="#27ae60",
+                                fg_color="#abebc6")
     plotnumberentery.grid(row=1,column=1,padx=20)
 
     zonelable = ct.CTkLabel(plotframe,text="Zone",font=fontlable,text_color="#f8f9f9")
     zonelable.grid(row=1,column=2,padx=(0,0),pady=12,sticky="w")
 
     zonecombo = ct.CTkComboBox(plotframe,font=fontentry,width=180,
-                                values=["Nowshera Econoic Zone","Nowshera Econoic Zone Ext."],border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
+                                values=["Nowshera Econoic Zone","Nowshera Econoic Zone Ext."],border_width=2,border_color="#27ae60",
+                                fg_color="#abebc6")
     zonecombo.grid(row=1,column=3,padx=20)
 
     locationlable = ct.CTkLabel(plotframe,text="Location",font=fontlable,text_color="#f8f9f9")
     locationlable.grid(row=1,column=4,padx=0,pady=12,sticky="w")
 
     locationentery = ct.CTkEntry(plotframe,font=fontentry,width=180,
-                                placeholder_text="Enter Location",border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",placeholder_text_color="white")
+                                placeholder_text="Enter Location",border_width=2,border_color="#27ae60",
+                                fg_color="#abebc6")
     locationentery.grid(row=1,column=5,padx=(0,0))
 
 
@@ -213,24 +213,24 @@ def pltallotment(app):
     landtypelable.grid(row=2,column=0,padx=20,pady=12,sticky="w")
 
     landtypecombo = ct.CTkComboBox(plotframe,font=fontentry,width=180,
-                                values=["Industrial","Commercial"],border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
+                                values=["Industrial","Commercial"],border_width=2,border_color="#27ae60",
+                                fg_color="#abebc6")
     landtypecombo.grid(row=2,column=1)
 
     plotstatuslable = ct.CTkLabel(plotframe,text="Status",font=fontlable,text_color="#f8f9f9")
     plotstatuslable.grid(row=2,column=2,padx=(0,0),pady=12,sticky="w")
 
     plotstatuscombo = ct.CTkComboBox(plotframe,font=fontentry,width=180,
-                                values=["Acquired","Available"],border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
+                                values=["Acquired","Available"],border_width=2,border_color="#27ae60",
+                                fg_color="#abebc6")
     plotstatuscombo.grid(row=2,column=3)
 
     arealable = ct.CTkLabel(plotframe,text="Area",font=fontlable,text_color="#f8f9f9")
     arealable.grid(row=2,column=4,padx=00,pady=12,sticky="w")
 
     areaentery = ct.CTkEntry(plotframe,font=fontentry,width=180,
-                                placeholder_text="Enter Area in Acre",border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",placeholder_text_color="white")
+                                placeholder_text="Enter Area in Acre",border_width=2,border_color="#27ae60",
+                                fg_color="#abebc6")
     areaentery.grid(row=2,column=5,padx=(0,0))
 
 
@@ -243,7 +243,7 @@ def pltallotment(app):
 
 
     plotdetails = ct.CTkLabel(ownerframe,text="Investor Information",font=("Arial",14,"bold"),
-                            text_color="#f8f9f9",bg_color="#808b96",width=850,height=20)
+                            text_color="#f8f9f9",bg_color="Green",width=850,height=20)
     plotdetails.grid(row=0,column=0,columnspan=6)
 
 
@@ -252,8 +252,8 @@ def pltallotment(app):
     cniclable.grid(row=1,column=0,padx=20,pady=13,sticky="w")
 
     cnicentry = ct.CTkEntry(ownerframe,font=fontentry,width=180,
-                                placeholder_text="Enter the CNIC",border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",placeholder_text_color="white")
+                                placeholder_text="Enter the CNIC",border_width=2,border_color="#27ae60",
+                                fg_color="#abebc6")
     cnicentry.grid(row=1,column=1,padx=(33,20))
 
 
@@ -261,8 +261,8 @@ def pltallotment(app):
     namelable.grid(row=1,column=2,padx=0,pady=12,sticky="w")
 
     nameentry = ct.CTkEntry(ownerframe,font=fontentry,width=180,
-                                placeholder_text="Enter the Name",border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",placeholder_text_color="white")
+                                placeholder_text="Enter the Name",border_width=2,border_color="#27ae60",
+                                fg_color="#abebc6")
     nameentry.grid(row=1,column=3)
 
 
@@ -270,88 +270,68 @@ def pltallotment(app):
     mobilelable.grid(row=1,column=4,padx=(30,7),pady=12,sticky="w")
 
     mobileentery = ct.CTkEntry(ownerframe,font=fontentry,width=180,
-                                placeholder_text="Enter Mobile Number",border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",placeholder_text_color="white")
+                                placeholder_text="Enter Mobile Number",border_width=2,border_color="#27ae60",
+                                fg_color="#abebc6")
     mobileentery.grid(row=1,column=5,padx=(15,2))
 
 
     emaillable = ct.CTkLabel(ownerframe,text="Email",font=fontlable,text_color="#f8f9f9")
     emaillable.grid(row=4,column=0,padx=20,pady=12,sticky="w")
     emmailentery = ct.CTkEntry(ownerframe,font=fontentry,width=180,
-                                placeholder_text="Enter Mobile Number",border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",placeholder_text_color="white")
+                                placeholder_text="Enter Mobile Number",border_width=2,border_color="#27ae60",
+                                fg_color="#abebc6")
 
     emmailentery.grid(row=4,column=1,padx=(33,20))
 
     addresslable = ct.CTkLabel(ownerframe,text="Address   ",font=fontlable,text_color="#f8f9f9")
     addresslable.grid(row=4,column=2,padx=(0,10),pady=12,sticky="w")
     addressentry = ct.CTkEntry(ownerframe,font=fontentry,width=180,
-                                placeholder_text="Enter Mobile Address",border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",placeholder_text_color="white")
+                                placeholder_text="Enter Mobile Address",border_width=2,border_color="#27ae60",
+                                fg_color="#abebc6")
 
     addressentry.grid(row=4,column=3)
 
     datelable = ct.CTkLabel(ownerframe,text="Date",font=fontlable,text_color="#f8f9f9")
     datelable.grid(row=4,column=4,padx=(30,7),pady=12,sticky="w")
     dateentery = DateEntry(ownerframe,font=fontentry,width=22,height=12,date_pattern="yyyy/mm/dd",
-                        background='darkblue', foreground='white', borderwidth=2)
+                        background='green', foreground='white', borderwidth=2)
 
     dateentery.grid(row=4,column=5,padx=(15,2))
     # End of right Frame
 
     # Strat of button Frame
     
-    savebtn = ct.CTkButton(btnframe,text="Save Record",width=110,
-                           fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",command=lambda:save_record(plotnumberentery,zonecombo,
+    savebtn = ct.CTkButton(btnframe,text="Save Record",width=100,
+                           command=lambda:save_record(plotnumberentery,zonecombo,
                                                      locationentery,landtypecombo,plotstatuscombo,areaentery,
                                                      cnicentry,nameentry,mobileentery,emmailentery,
                                                      addressentry,dateentery))
     savebtn.grid(row=0,column=0)
 
-    showbtn = ct.CTkButton(btnframe,text="Show All",width=110,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",command=lambda:treeview_data())
-    showbtn.grid(row=0,column=1,padx=5)
+    showbtn = ct.CTkButton(btnframe,text="Show All",width=100,command=lambda:treeview_data())
+    showbtn.grid(row=0,column=1,padx=10)
 
-    searchlable = ct.CTkLabel(btnframe,text="Search By :",text_color="white")
-    searchlable.grid(row=0,column=2,padx=10)
+    searchlable = ct.CTkLabel(btnframe,text="Search By :")
+    searchlable.grid(row=0,column=2)
 
     searchcombo = ct.CTkComboBox(btnframe,font=fontentry,width=180,
-                                values=["Plot Number","Name","CNIC"],text_color="white",fg_color="#2c3e50",button_color="#707b7c",button_hover_color="#2471a3")
+                                values=["Plot Number","Name","CNIC"])
     searchcombo.grid(row=0,column=3)
 
-    searchentry = ct.CTkEntry(btnframe,placeholder_text="Search By",width=150,border_width=2,border_color="#99a3a4",
-                                fg_color="#2c3e50",text_color="White",placeholder_text_color="white")
+    searchentry = ct.CTkEntry(btnframe,placeholder_text="Search By",width=150)
     searchentry.grid(row=0,column=4,padx=10)
 
-    searchbtn = ct.CTkButton(btnframe,text="Search",fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",width=120,command=lambda:search_record(searchcombo,searchentry))
-    searchbtn.grid(row=0,column=5,padx=(4,10))
+    searchbtn = ct.CTkButton(btnframe,text="Search",width=100,command=lambda:search_record(searchcombo,searchentry))
+    searchbtn.grid(row=0,column=5,padx=10)
 
     ## Start of treeview
-    style = ttk.Style()
-    # Configure Treeview heading (the column headers)
-    style.configure("Treeview.Heading",
-                font=("Helvetica", 11),       # Font and size of the headings
-                background="black",           # Background color of the heading
-                foreground="black",           # Text color of the heading
-                fieldbackground="2c3e50",
-                relief="raised",                  # Border style of the heading (flat, raised, sunken, etc.)
-                anchor="center")   
-    # Configure Treeview styles
-    style.configure("Treeview",
-                    background="#2c3e50",    # Background color of the cells
-                    foreground="white",        # Text color
-                    fieldbackground="2c3e50",   # Background color of the field
-                    rowheight=25)              # Row height
-
-    # Configure selected row colors
-    style.map("Treeview",
-            background=[('selected', '#2980b9')],  # Background color when row is selected
-            foreground=[('selected', 'white')]) # Text color when row is selected
+    
     cols = ("Plot #","Zone","Area","CNIC","Owner","Mobile","Date")
-    treeview = ttk.Treeview(treeframe,columns = cols, show="headings",height=9,padding=1)
+    treeview = ttk.Treeview(treeframe,columns = cols, show="headings",height=11)
 
-    treeview.column("Plot #", width=50)
+    treeview.column("Plot #", width=60)
     treeview.heading ('Plot #', text='Plot #',anchor="center")
-    treeview.column("Area", width=70,anchor="center")
+    treeview.column("Area", width=80,anchor="center")
     treeview.heading ('Zone', text='Zone')
     treeview.column ('Zone',anchor="center")
     treeview.column("Area", width=80,anchor="center")
