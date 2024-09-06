@@ -81,10 +81,12 @@ def industries(app):
     indframe.place(x=158,y=82)
     backframe = ct.CTkFrame(indframe,fg_color="#17202a")
     backframe.place(x=0,y=0)
-    treeframe =ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
-    treeframe.place(x=0,y=20)
     industryframe = ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
-    industryframe.place(x=00,y=450)
+    industryframe.place(x=00,y=20)
+    btnframe = ct.CTkFrame(indframe,fg_color="#17202a")
+    btnframe.place(x=40,y=160)
+    treeframe =ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
+    treeframe.place(x=0,y=250)
     photo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\back.png")
     homebtn = ct.CTkButton(backframe,image=photo_image,text="",font=fontbtn,width=30,hover_color="#1b4f72",fg_color="#17202a",bg_color="#17202a",
                             height=20,cursor="hand2",command=lambda:indframe.place_forget())
@@ -185,8 +187,40 @@ def industries(app):
                                 fg_color="#154360",text_color="White",placeholder_text_color="white")
     areaentery.grid(row=2,column=3,padx=(0,0))
 
+    datelable = ct.CTkLabel(industryframe,text="Date",font=fontlable,text_color="#f8f9f9")
+    datelable.grid(row=2,column=4,padx=(0,7),pady=12,sticky="w")
+    dateentery = DateEntry(industryframe,font=fontentry,width=22,height=12,date_pattern="yyyy/mm/dd",
+                        background='darkblue', foreground='white', borderwidth=2)
 
+    dateentery.grid(row=2,column=5,padx=(1,2))
 
     # End of Left Frame
 
+    # Strat of button Frame
     
+    savebtn = ct.CTkButton(btnframe,text="Save Record",width=150,
+                           fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e")
+    savebtn.grid(row=0,column=0,padx=(40,0))
+    updatebtn = ct.CTkButton(btnframe,text="Update Record",width=150,
+                           fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e")
+    updatebtn.grid(row=0,column=1,padx=(30,0))
+
+    showbtn = ct.CTkButton(btnframe,text="Show All",width=150,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",command=lambda:treeview_data())
+    showbtn.grid(row=0,column=2,padx=(30,0))
+
+    clearbtn = ct.CTkButton(btnframe,text="Show All",width=150,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",command=lambda:treeview_data())
+    clearbtn.grid(row=0,column=3,padx=(30,0))
+
+    searchlable = ct.CTkLabel(btnframe,text="Search By :",text_color="white")
+    searchlable.grid(row=1,column=0,padx=(50,0),pady=15)
+
+    searchcombo = ct.CTkComboBox(btnframe,font=fontentry,width=150,
+                                values=["Plot Number","Name","CNIC"],text_color="white",fg_color="#2c3e50",button_color="#707b7c",button_hover_color="#2471a3")
+    searchcombo.grid(row=1,column=1,padx=(30,0),pady=15)
+
+    searchentry = ct.CTkEntry(btnframe,placeholder_text="Search By",width=150,border_width=2,border_color="#99a3a4",
+                                fg_color="#2c3e50",text_color="White",placeholder_text_color="white")
+    searchentry.grid(row=1,column=2,padx=(30,0),pady=15)
+
+    searchbtn = ct.CTkButton(btnframe,text="Search",fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",width=150,command=lambda:search_record(searchcombo,searchentry))
+    searchbtn.grid(row=1,column=3,padx=(30,0),pady=15)
