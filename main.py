@@ -3,6 +3,7 @@ import tkinter
 from tkinter import ttk
 from plotallotment import pltallotment 
 from industries import industries
+from payments import payments
 
 fontlable = ("Poppins",14)
 fontlmenu = ("Poppins",18,"bold")
@@ -87,7 +88,8 @@ industrybtn = ct.CTkButton(menuframe,image=factory_image,border_width=2,fg_color
 industrybtn.pack()
 ownerbtn = ct.CTkButton(menuframe,image=owner_image,border_width=2,fg_color="#154360",border_color="#707b7c",text="Owner Info",font=fontbtn,cursor="hand2",width=150,height=40)
 ownerbtn.pack(padx=1,pady=5)
-paymentbtn = ct.CTkButton(menuframe,image=payment_image,border_width=2,fg_color="#154360",border_color="#707b7c",text="Payments",font=fontbtn,width=150,cursor="hand2",height=40)
+paymentbtn = ct.CTkButton(menuframe,image=payment_image,border_width=2,fg_color="#154360",border_color="#707b7c",text="Payments",
+                          font=fontbtn,width=150,cursor="hand2",height=40,command=lambda:payments(app))
 paymentbtn.pack()
 reportbtn = ct.CTkButton(menuframe,image=report_image,border_width=2,fg_color="#154360",border_color="#707b7c",text="Reports",font=fontbtn,width=150,height=40,cursor="hand2")
 reportbtn.pack(padx=1,pady=5)

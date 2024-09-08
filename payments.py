@@ -72,9 +72,9 @@ def save_record(indnameentery,naturecombo,statuscombo,modecombo,areaentery,datee
         treeview_data()
 
 # Select Data from tree
-def select_data():
+def select_data(event):
     try:
-        global plot_id,owner_id
+        global plot_id,owner_id,indid
         plot_id = ''
         owner_id = ''
         index = treeview.selection()
@@ -82,9 +82,10 @@ def select_data():
         row = content['values']
         plot_id = row[7]
         owner_id = row[8]
+        indid = row[9]
         print(row)
-        print(plot_id,owner_id)  # Print the values of the clicked row
-        return plot_id,owner_id
+        print(plot_id,owner_id,indid)  # Print the values of the clicked row
+        return plot_id,owner_id,indid
     except:
         messagebox.showerror("Error","Select plot first")
 
@@ -104,15 +105,21 @@ def search_record(searchcombo,searchentry):
             cond = "i.ind_name"
         cur,con = db.database_connect()
         cur.execute("use kpezdmc_version1")
-        query =f"select p.plot_number,p.zone,p.Area,o.ownname,o.Mobile,i.ind_name,i.ind_nature from plots p join plot_ownership po on p.id = po.plot_id join ownertable o on o.id = po.owner_id left join industries i on i.plot_id = p.id where {cond} like {value};"
-        print(query)
+        query =f"select p.plot_number,p.zone,p.Area,o.ownname,o.Mobile,i.ind_name,i.ind_nature,p.id,i.id,o.id from plots p join plot_ownership po on p.id = po.plot_id join ownertable o on o.id = po.owner_id left join industries i on i.plot_id = p.id where {cond} like {value};"
+        #print(query)
         cur.execute(query)
         result = cur.fetchall()
         treeview.delete(*treeview.get_children())
         for record in result:
             treeview.insert('',ct.END,values=record)
+        plotid = result[0][7]
+        indid  = result[0][8]
+        ownid = result[0][9]
         print(result)
- 
+        #print(plotid,indid,ownid)
+        #return plotid,indid,ownid
+        #plot_id,owner_id,indid=select_data()
+        #print(plot_id,owner_id,indid)
 # Clear Fields
 def clear_fields(indnameentery,naturecombo,statuscombo,modecombo,areaentery,dateentery):
     indnameentery.delete(0,ct.END)
@@ -128,7 +135,7 @@ def clear_fields(indnameentery,naturecombo,statuscombo,modecombo,areaentery,date
 def treeview_data():
     cur, con = db.database_connect()
     cur.execute("use kpezdmc_version1")
-    query = """select p.plot_number,p.zone,p.Area,o.ownname,o.Mobile,i.ind_name,i.ind_nature,p.id,o.id
+    query = """select p.plot_number,p.zone,p.Area,o.ownname,o.Mobile,i.ind_name,i.ind_nature,p.id,o.id,i.id
                 from plots p
                 join
                 plot_ownership po
@@ -146,7 +153,7 @@ def treeview_data():
     treeview.tag_configure("highlight", background="lightyellow")
     for record in plot_record:
         treeview.insert('',ct.END,values=record)
-def industries(app):
+def payments(app):
     global treeview
     fontlable = ("Poppins",14)
     fontlmenu = ("Poppins",18,"bold")
@@ -156,18 +163,18 @@ def industries(app):
     indframe.place(x=158,y=82)
     backframe = ct.CTkFrame(indframe,fg_color="#17202a")
     backframe.place(x=0,y=0)
-    industryframe = ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
-    industryframe.place(x=00,y=20)
+    paymentsframe = ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
+    paymentsframe.place(x=00,y=240)
     btnframe = ct.CTkFrame(indframe,fg_color="#17202a")
-    btnframe.place(x=40,y=160)
+    btnframe.place(x=40,y=5)
     treeframe =ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
-    treeframe.place(x=0,y=250)
+    treeframe.place(x=0,y=60)
     photo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\back.png")
     homebtn = ct.CTkButton(backframe,image=photo_image,text="",font=fontbtn,width=30,hover_color="#1b4f72",fg_color="#17202a",bg_color="#17202a",
                             height=20,cursor="hand2",command=lambda:indframe.place_forget())
     homebtn.place(x=0,y=0)
     # Tree Frame start
-    plotdetaillable = ct.CTkLabel(treeframe,text="Plot Details",font=("Arial",14,"bold"),
+    plotdetaillable = ct.CTkLabel(treeframe,text="Plot / Industry Details",font=("Arial",14,"bold"),
                             text_color="#f8f9f9",bg_color="#808b96",width=850,height=20)
     plotdetaillable.pack()
     style = ttk.Style()
@@ -190,10 +197,10 @@ def industries(app):
     style.map("Treeview",
             background=[('selected', '#2980b9')],  # Background color when row is selected
             foreground=[('selected', 'white')]) # Text color when row is selected
-    cols = ("Plot #","Zone","Area","Owner","Mobile","indname","nature","Plot ID","Owner ID")
+    cols = ("Plot #","Zone","Area","Owner","Mobile","indname","nature","Plot ID","Owner ID","Indid")
     vsb = ttk.Scrollbar(treeframe, orient="vertical")
     h_scroll = ttk.Scrollbar(indframe, orient="horizontal")
-    treeview = ttk.Treeview(treeframe,columns = cols, show="headings",height=11,
+    treeview = ttk.Treeview(treeframe,columns = cols, show="headings",height=5,
                             yscrollcommand=vsb.set,xscrollcommand=h_scroll.set)
 
     treeview.column("Plot #", width=50,stretch=False)
@@ -215,6 +222,8 @@ def industries(app):
     treeview.heading ('Plot ID', text="Plot ID")
     treeview.column("Owner ID", width=0,anchor="center",stretch=False)
     treeview.heading ('Owner ID', text="Owner ID")
+    treeview.column("Indid", width=0,anchor="center",stretch=False)
+    treeview.heading ('Indid', text="Indid")
     treeview_data()
     treeview.configure(yscrollcommand=vsb.set)
     # Add the horizontal scrollbar
@@ -228,69 +237,49 @@ def industries(app):
     #vsb.grid(row=0,column=1,pady=0)
     #h_scroll.place(x=4,y=495,width=840)
     #treeview.bind("Button-1>",select_data)
-    #treeview.bind('<<TreeviewSelect>>', lambda event: select_data(event='TreeviewSelect'))
+    treeview.bind('<<TreeviewSelect>>', lambda event: select_data(event='TreeviewSelect'))
     #db.database_connect()
 
 
     #End of Tree Frame ###########################################
 
     # Start of industry frame
-    indinfolable = ct.CTkLabel(industryframe,text="Industry Information",font=("Arial",14,"bold"),
+    indinfolable = ct.CTkLabel(paymentsframe,text="Industry Information",font=("Arial",14,"bold"),
                             text_color="#f8f9f9",bg_color="#808b96",width=850,height=20)
     indinfolable.grid(row=0,column=0,columnspan=6,pady=(0,0))
-    indnamelable = ct.CTkLabel(industryframe,text="Name ",font=fontlable,text_color="#f8f9f9")
-    indnamelable.grid(row=1,column=0,padx=20,pady=12,sticky="w")
+    
 
-    indnameentery = ct.CTkEntry(industryframe,font=fontentry,width=180,
-                                placeholder_text="Enter the Name",border_width=2,border_color="#17202a",
+    paymentheadlable = ct.CTkLabel(paymentsframe,text="Payment Head",font=fontlable,text_color="#f8f9f9")
+    paymentheadlable.grid(row=1,column=0,padx=(20,0),pady=12,sticky="w")
+
+    paymentgeadcombo = ct.CTkComboBox(paymentsframe,font=fontentry,width=180,
+                                values=["Select Head","Bore Hole","AGR","Maintanance"],border_width=2,border_color="#17202a",
+                                fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
+    paymentgeadcombo.grid(row=1,column=1)
+
+    amountlabel = ct.CTkLabel(paymentsframe,text="Amount",font=fontlable,text_color="#f8f9f9")
+    amountlabel.grid(row=1,column=2,padx=0,pady=12,sticky="w")
+
+    amountentery = ct.CTkEntry(paymentsframe,font=fontentry,width=180,
+                                placeholder_text="Amount in Rs.",border_width=2,border_color="#17202a",
                                 fg_color="#154360",text_color="White",placeholder_text_color="white")
-    indnameentery.grid(row=1,column=1,padx=20)
+    amountentery.grid(row=1,column=3,padx=(0,0))
 
-    naturelable = ct.CTkLabel(industryframe,text="Zone",font=fontlable,text_color="#f8f9f9")
-    naturelable.grid(row=1,column=2,padx=(0,0),pady=12,sticky="w")
-
-    naturecombo = ct.CTkComboBox(industryframe,font=fontentry,width=180,
-                                values=["Marble","Engineering","Grinding","Phrama"],border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
-    naturecombo.grid(row=1,column=3,padx=20)
-
-    statuslable = ct.CTkLabel(industryframe,text="Status",font=fontlable,text_color="#f8f9f9")
-    statuslable.grid(row=1,column=4,padx=0,pady=12,sticky="w")
-
-
-    statuscombo = ct.CTkComboBox(industryframe,font=fontentry,width=180,
-                                values=["Newly Alloted","Under Construction","Opertional","Closed"],border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
-    statuscombo.grid(row=1,column=5)
-
-    modelable = ct.CTkLabel(industryframe,text="Mode",font=fontlable,text_color="#f8f9f9")
-    modelable.grid(row=2,column=0,padx=(20,0),pady=12,sticky="w")
-
-    modecombo = ct.CTkComboBox(industryframe,font=fontentry,width=180,
-                                values=["Manual","Automatic","Semi Automatic"],border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
-    modecombo.grid(row=2,column=1)
-
-    arealable = ct.CTkLabel(industryframe,text="Area",font=fontlable,text_color="#f8f9f9")
-    arealable.grid(row=2,column=2,padx=00,pady=12,sticky="w")
-
-    areaentery = ct.CTkEntry(industryframe,font=fontentry,width=180,
-                                placeholder_text="Coverd Area",border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",placeholder_text_color="white")
-    areaentery.grid(row=2,column=3,padx=(0,0))
-
-    datelable = ct.CTkLabel(industryframe,text="Date",font=fontlable,text_color="#f8f9f9")
-    datelable.grid(row=2,column=4,padx=(0,7),pady=12,sticky="w")
-    dateentery = DateEntry(industryframe,font=fontentry,width=22,height=12,date_pattern="yyyy/mm/dd",
+    datelable = ct.CTkLabel(paymentsframe,text="Payment Date",font=fontlable,text_color="#f8f9f9")
+    datelable.grid(row=2,column=0,padx=(20,0),pady=12,sticky="w")
+    dateentery = DateEntry(paymentsframe,font=fontentry,width=22,height=12,date_pattern="yyyy/mm/dd",
                         background='darkblue', foreground='white', borderwidth=2)
+    dateentery.grid(row=2,column=1,padx=(1,2))
 
-    dateentery.grid(row=2,column=5,padx=(1,2))
+    savebtn = ct.CTkButton(paymentsframe,text="Save Record",width=180,
+                           fg_color="#154360",corner_radius=5,border_width=2,border_color="#17202a")
+    savebtn.grid(row=2,column=3,padx=(0,0))
 
     # End of Left Frame
 
     # Strat of button Frame
     
-    savebtn = ct.CTkButton(btnframe,text="Save Record",width=150,
+    """ savebtn = ct.CTkButton(btnframe,text="Save Record",width=150,
                            fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",
                            command=lambda:save_record(indnameentery,naturecombo,statuscombo,modecombo,areaentery,dateentery))
     savebtn.grid(row=0,column=0,padx=(40,0))
@@ -303,17 +292,17 @@ def industries(app):
 
     clearbtn = ct.CTkButton(btnframe,text="Show All",width=150,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",command=lambda:treeview_data())
     clearbtn.grid(row=0,column=3,padx=(30,0))
-
+ """
     searchlable = ct.CTkLabel(btnframe,text="Search By :",text_color="white")
-    searchlable.grid(row=1,column=0,padx=(50,0),pady=15)
+    searchlable.grid(row=0,column=0,padx=(50,0),pady=15)
 
     searchcombo = ct.CTkComboBox(btnframe,font=fontentry,width=150,
                                 values=["Plot Number","Owner Name","Industry Name"],text_color="white",fg_color="#2c3e50",button_color="#707b7c",button_hover_color="#2471a3")
-    searchcombo.grid(row=1,column=1,padx=(30,0),pady=15)
+    searchcombo.grid(row=0,column=1,padx=(30,0),pady=15)
 
     searchentry = ct.CTkEntry(btnframe,placeholder_text="Search By",width=150,border_width=2,border_color="#99a3a4",
                                 fg_color="#2c3e50",text_color="White",placeholder_text_color="white")
-    searchentry.grid(row=1,column=2,padx=(30,0),pady=15)
+    searchentry.grid(row=0,column=2,padx=(30,0),pady=15)
 
     searchbtn = ct.CTkButton(btnframe,text="Search",fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",width=150,command=lambda:search_record(searchcombo,searchentry))
-    searchbtn.grid(row=1,column=3,padx=(30,0),pady=15)
+    searchbtn.grid(row=0,column=3,padx=(30,0),pady=15)
