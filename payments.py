@@ -7,22 +7,26 @@ import mysql.connector
 from datetime import datetime
 from mysql.connector import Error
 import database as db
+gplotid=None
+gownerid=None
+gindid=None
 # Save record fn
-def save_record(indnameentery,naturecombo,statuscombo,modecombo,areaentery,dateentery):
-    if indnameentery.get() == "" or naturecombo.get() == "Select Nature" or statuscombo.get() == "Select Status" or modecombo.get() == "Select Mode" :
+def save_record(paymentgeadcombo,amountentery,dateentery):
+    
+    if paymentgeadcombo.get() == "" or amountentery.get() == "":
         messagebox.showerror("Error","All fileds are required")
     else:
         try:
             cur, con = db.database_connect()
             cur.execute("use kpezdmc_version1")
-            plotid,owner_id = select_data()
-            if plotid == '':
-                messagebox.ERROR("Error","First select the plot from Tree")
+            if gindid == '':
+                messagebox.showerror("Error","First select the plot from Tree")
             else:
                 # Data Entery into Plot Table
-                ind_id = db.get_id("industries") # Get Plot tabel Id auto incrment by 1
+                pay_id = db.get_id("payments") # Get payment tabel Id auto incrment by 1
                 # Define the SQL query to insert data
-                insert_query = """INSERT INTO industries (id,ind_name,ind_nature,ind_status,ind_mode,coverd_area,plot_id,created_at) 
+                print(gplotid,gindid,gownerid)
+                insert_query = """INSERT INTO payments (id,owner_id,plot_id,industry_id,budget_head_id,amount,payment_date,created_at) 
                                     VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"""
 
                 # Get plot id and owner id from tree
@@ -31,37 +35,17 @@ def save_record(indnameentery,naturecombo,statuscombo,modecombo,areaentery,datee
 
                 # Format the current date
                 formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")  # Example format: 2024-09-03
-                print(plotid)
+                print(f"global Data{gplotid}")
                 # Data to be inserted
-                data = (ind_id,indnameentery.get(),naturecombo.get(),statuscombo.get(),modecombo.get(),areaentery.get(),
-                        plotid,formatted_date)
+                budgetheadid = db.get_budget_head(paymentgeadcombo.get())
+               # print(budgetheadid)
+                data = (pay_id,gownerid,gplotid,gindid,budgetheadid,amountentery.get(),dateentery.get(),formatted_date)
 
                 # Execute the query
                 cur.execute(insert_query, data)
+                con.commit()
         # End of entery to industry table
 
-        # Entery to industry ownership table
-                    # Data Entery into plot_ownership
-                ownership_id = db.get_id("industry_ownerships") # Get plot_Ownership Id Auto increment by 1
-                # Define the SQL query to insert data
-                insert_query = """INSERT INTO industry_ownerships (id,industry_id,owner_id,start_date,i0_status,created_at) 
-                                                        VALUES (%s, %s, %s,%s,%s,%s)"""
-
-                # Cureent Date
-                current_date = datetime.now()
-
-                # Format the current date
-                formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")  # Example format: 2024-09-03
-                
-                # Data to be inserted
-                data = (ownership_id,ind_id,owner_id,dateentery.get(),"Established",formatted_date)
-
-                # Execute the query
-                cur.execute(insert_query, data) 
-                # Commit the transaction
-                con.commit()
-                clear_fields(indnameentery,naturecombo,statuscombo,modecombo,areaentery,dateentery)
-                treeview_data()
         except Error as e:
                 messagebox.showerror("Error",f"Database error : {e}")
         finally:
@@ -69,23 +53,21 @@ def save_record(indnameentery,naturecombo,statuscombo,modecombo,areaentery,datee
                     cur.close()
                     con.close()
                     print("MySQL connection is closed")
-        treeview_data()
+        
 
 # Select Data from tree
 def select_data(event):
+    global gownerid,gplotid,gindid
     try:
-        global plot_id,owner_id,indid
-        plot_id = ''
-        owner_id = ''
         index = treeview.selection()
         content = treeview.item(index)
         row = content['values']
-        plot_id = row[7]
-        owner_id = row[8]
-        indid = row[9]
-        print(row)
-        print(plot_id,owner_id,indid)  # Print the values of the clicked row
-        return plot_id,owner_id,indid
+        #print(row)
+        gplotid = row[7]
+        gownerid = row[8]
+        gindid = row[9]
+        print(gplotid,gownerid,gindid)
+      # Print the values of the clicked row
     except:
         messagebox.showerror("Error","Select plot first")
 
@@ -154,6 +136,9 @@ def treeview_data():
     for record in plot_record:
         treeview.insert('',ct.END,values=record)
 def payments(app):
+    gplotid = None
+    gownerid = None
+    gindid = None
     global treeview
     fontlable = ("Poppins",14)
     fontlmenu = ("Poppins",18,"bold")
@@ -236,7 +221,7 @@ def payments(app):
     vsb.pack(side=tkinter.RIGHT, fill=tkinter.Y)
     #vsb.grid(row=0,column=1,pady=0)
     #h_scroll.place(x=4,y=495,width=840)
-    #treeview.bind("Button-1>",select_data)
+    #treeview.bind("Button-1>",select_data(event='TreeviewSelect'))
     treeview.bind('<<TreeviewSelect>>', lambda event: select_data(event='TreeviewSelect'))
     #db.database_connect()
 
@@ -272,7 +257,7 @@ def payments(app):
     dateentery.grid(row=2,column=1,padx=(1,2))
 
     savebtn = ct.CTkButton(paymentsframe,text="Save Record",width=180,
-                           fg_color="#154360",corner_radius=5,border_width=2,border_color="#17202a")
+                           fg_color="#154360",corner_radius=5,border_width=2,border_color="#17202a",command=lambda:save_record(paymentgeadcombo,amountentery,dateentery))
     savebtn.grid(row=2,column=3,padx=(0,0))
 
     # End of Left Frame
