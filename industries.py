@@ -15,9 +15,8 @@ def save_record(indnameentery,naturecombo,statuscombo,modecombo,areaentery,datee
         try:
             cur, con = db.database_connect()
             cur.execute("use kpezdmc_version1")
-            plot_id,owner_id = select_data()
-            print(plot_id)
-            if plot_id == '':
+            plotid,owner_id = select_data()
+            if plotid == '':
                 messagebox.ERROR("Error","First select the plot from Tree")
             else:
                 # Data Entery into Plot Table
@@ -32,10 +31,10 @@ def save_record(indnameentery,naturecombo,statuscombo,modecombo,areaentery,datee
 
                 # Format the current date
                 formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")  # Example format: 2024-09-03
-                print(plot_id)
+                print(plotid)
                 # Data to be inserted
                 data = (ind_id,indnameentery.get(),naturecombo.get(),statuscombo.get(),modecombo.get(),areaentery.get(),
-                        plot_id,formatted_date)
+                        plotid,formatted_date)
 
                 # Execute the query
                 cur.execute(insert_query, data)
@@ -62,7 +61,7 @@ def save_record(indnameentery,naturecombo,statuscombo,modecombo,areaentery,datee
                 # Commit the transaction
                 con.commit()
                 clear_fields(indnameentery,naturecombo,statuscombo,modecombo,areaentery,dateentery)
-                
+                treeview_data()
         except Error as e:
                 messagebox.showerror("Error",f"Database error : {e}")
         finally:
@@ -139,8 +138,8 @@ def treeview_data():
                 on o.id = po.owner_id
                 left join
                 industries i
-                on i.id = p.id;
-                order by i.id desc"""
+                on i.plot_id = p.id
+                order by i.created_at desc;"""
     cur.execute(query)
     plot_record = cur.fetchall()
     treeview.delete(*treeview.get_children())
