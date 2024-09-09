@@ -44,6 +44,7 @@ def save_record(paymentgeadcombo,amountentery,dateentery):
                 # Execute the query
                 cur.execute(insert_query, data)
                 con.commit()
+                clear_fields(paymentgeadcombo,amountentery,dateentery)
         # End of entery to industry table
 
         except Error as e:
@@ -58,21 +59,35 @@ def save_record(paymentgeadcombo,amountentery,dateentery):
 # Select Data from tree
 def select_data(event):
     global gownerid,gplotid,gindid
-    try:
-        index = treeview.selection()
-        content = treeview.item(index)
-        row = content['values']
-        #print(row)
-        gplotid = row[7]
-        gownerid = row[8]
-        gindid = row[9]
-        print(gplotid,gownerid,gindid)
-      # Print the values of the clicked row
-    except:
-        messagebox.showerror("Error","Select plot first")
+    row = []
+    index = treeview.selection()
+    print(f"Index is {index}")
+    content = treeview.item(index)
+    row = content['values']
+    print(row)
+    gplotid = row[7]
+    gownerid = row[8]
+    gindid = row[9]
+    print(gplotid,gownerid,gindid)
+    update_paymentdata(gownerid,gplotid,gindid)
+    update_balancedata(gownerid,gplotid,gindid)
+    # Print the values of the clicked row
 
 #Search Record
-
+# Function to update payment tree
+def update_paymentdata(gownerid,gplotid,gindid):
+    cur, con = db.database_connect()
+    cur.execute("use kpezdmc_version1")
+    query = f"select b.budget_head_name,p.amount,p.payment_date from payments p join budget_heads b on b.budget_head_id = p.budget_head_id where p.plot_id={gplotid} or p.owner_id={gownerid} or p.plot_id = {gplotid};"
+    cur.execute(query)
+    pay_record = cur.fetchall()
+    paytreeview.delete(*paytreeview.get_children())
+    for record in pay_record:
+        paytreeview.insert('',ct.END,values=record)
+        
+# Function to update Balance tree
+def update_balancedata(gownerid,gplotid,gindid):
+    pass
 def search_record(searchcombo,searchentry):
     cond=searchcombo.get()
     value=f"'%{searchentry.get()}%'"
@@ -103,12 +118,9 @@ def search_record(searchcombo,searchentry):
         #plot_id,owner_id,indid=select_data()
         #print(plot_id,owner_id,indid)
 # Clear Fields
-def clear_fields(indnameentery,naturecombo,statuscombo,modecombo,areaentery,dateentery):
-    indnameentery.delete(0,ct.END)
-    naturecombo.set("Select Nature")
-    statuscombo.set("Select Status")
-    modecombo.set("Select Mode")
-    areaentery.delete(0,ct.END)
+def clear_fields(paymentgeadcombo,amountentery,dateentery):
+    paymentgeadcombo.set("Select Head")
+    amountentery.delete(0,ct.END)
     from datetime import date
     dateentery.set_date(date.today())
 
@@ -139,7 +151,7 @@ def payments(app):
     gplotid = None
     gownerid = None
     gindid = None
-    global treeview
+    global treeview,baltreeview,paytreeview
     fontlable = ("Poppins",14)
     fontlmenu = ("Poppins",18,"bold")
     fontentry = ("Poppins",10,"bold")
@@ -150,10 +162,14 @@ def payments(app):
     backframe.place(x=0,y=0)
     paymentsframe = ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
     paymentsframe.place(x=00,y=240)
+    balanceframe = ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
+    balanceframe.place(x=450,y=370)
     btnframe = ct.CTkFrame(indframe,fg_color="#17202a")
     btnframe.place(x=40,y=5)
     treeframe =ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
     treeframe.place(x=0,y=60)
+    sumaryframe =ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
+    sumaryframe.place(x=0,y=370)
     photo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\back.png")
     homebtn = ct.CTkButton(backframe,image=photo_image,text="",font=fontbtn,width=30,hover_color="#1b4f72",fg_color="#17202a",bg_color="#17202a",
                             height=20,cursor="hand2",command=lambda:indframe.place_forget())
@@ -236,9 +252,17 @@ def payments(app):
 
     paymentheadlable = ct.CTkLabel(paymentsframe,text="Payment Head",font=fontlable,text_color="#f8f9f9")
     paymentheadlable.grid(row=1,column=0,padx=(20,0),pady=12,sticky="w")
-
+    # code to get budget heads from table
+    pcur,pcon = db.database_connect()
+    # Query to get budget heads
+    query = "SELECT budget_head_name FROM budget_heads"  # Replace with your table and column names
+    pcur.execute(query) 
+    # Fetch all the results from the executed query
+    results = pcur.fetchall()
+    # Extract the budget heads from the results and return them as a list
+    budget_heads1 = [row[0] for row in results]
     paymentgeadcombo = ct.CTkComboBox(paymentsframe,font=fontentry,width=180,
-                                values=["Select Head","Bore Hole","AGR","Maintanance"],border_width=2,border_color="#17202a",
+                                values=budget_heads1,border_width=2,border_color="#17202a",
                                 fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
     paymentgeadcombo.grid(row=1,column=1)
 
@@ -291,3 +315,57 @@ def payments(app):
 
     searchbtn = ct.CTkButton(btnframe,text="Search",fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",width=150,command=lambda:search_record(searchcombo,searchentry))
     searchbtn.grid(row=0,column=3,padx=(30,0),pady=15)
+
+    # Payment Summary Tree Start
+    # Configure selected row colors
+    paymentlable = ct.CTkLabel(sumaryframe,text="Payments Summary",font=("Arial",14,"bold"),
+                            text_color="#f8f9f9",bg_color="#808b96",width=393,height=20)
+    paymentlable.pack(side=tkinter.TOP)
+    style.map("Treeview",
+            background=[('selected', '#2980b9')],  # Background color when row is selected
+            foreground=[('selected', 'white')]) # Text color when row is selected
+    cols = ("bhn","amount","Date")
+    vsb = ttk.Scrollbar(sumaryframe, orient="vertical")
+    paytreeview = ttk.Treeview(sumaryframe,columns = cols, show="headings",height=6)
+    paytreeview.pack(side=tkinter.LEFT)
+    paytreeview.column("bhn", width=170,stretch=False)
+    paytreeview.heading ('bhn', text='Payment Head',anchor="center")
+    paytreeview.column("amount", width=90,anchor="center",stretch=False)
+    paytreeview.heading ('amount', text='Amount')
+    paytreeview.column ('Date',anchor="center",stretch=False,width=120)
+    paytreeview.heading ('Date', text="Date",anchor="center")
+    
+
+    paytreeview.configure(yscrollcommand=vsb.set)
+    # Add the horizontal scrollbar
+    vsb.config(command=paytreeview.yview)
+    # Pack the paytreeview and scrollbar
+    #h_scroll.pack(side=tkinter.BOTTOM, fill=tkinter.X)
+    vsb.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+
+    # End of payment Tree
+
+    # Start of Balance Tree
+    balancelable = ct.CTkLabel(balanceframe,text="Balance Summary",font=("Arial",14,"bold"),
+                            text_color="#f8f9f9",bg_color="#808b96",width=393,height=20)
+    balancelable.pack(side=tkinter.TOP)
+    balcols = ("bhn","Balance","Date")
+    balvs = ttk.Scrollbar(balanceframe, orient="vertical")
+    baltreeview = ttk.Treeview(balanceframe,columns = balcols, show="headings",height=6)
+    baltreeview.pack(side=tkinter.LEFT)
+    baltreeview.column("bhn", width=170,stretch=False)
+    baltreeview.heading ('bhn', text='Payment Head',anchor="center")
+    baltreeview.column("Balance", width=90,anchor="center",stretch=False)
+    baltreeview.heading ('Balance', text='Balance')
+    baltreeview.column ('Date',anchor="center",stretch=False,width=120)
+    baltreeview.heading ('Date', text="Date",anchor="center")
+    
+
+    baltreeview.configure(yscrollcommand=balvs.set)
+    # Add the horizontal scrollbar
+    balvs.config(command=baltreeview.yview)
+    # Pack the baltreeview and scrollbar
+    #h_scroll.pack(side=tkinter.BOTTOM, fill=tkinter.X)
+    balvs.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+   
+   
