@@ -45,6 +45,8 @@ def save_record(paymentgeadcombo,amountentery,dateentery):
                 cur.execute(insert_query, data)
                 con.commit()
                 clear_fields(paymentgeadcombo,amountentery,dateentery)
+                update_balancedata(gownerid,gplotid,gindid)
+                update_paymentdata(gownerid,gplotid,gindid)
         # End of entery to industry table
 
         except Error as e:
@@ -65,9 +67,18 @@ def select_data(event):
     content = treeview.item(index)
     row = content['values']
     print(row)
-    gplotid = row[7]
-    gownerid = row[8]
-    gindid = row[9]
+    if row[7] == 'None':
+        gplotid = 0
+    else:
+        gplotid = row[7]
+    if row[8] == 'None':
+        gownerid = 0
+    else:
+        gownerid = row[8]
+    if row[9] == 'None':
+        gindid = 0
+    else:
+        gindid = row[9]
     print(gplotid,gownerid,gindid)
     update_paymentdata(gownerid,gplotid,gindid)
     update_balancedata(gownerid,gplotid,gindid)
@@ -78,7 +89,7 @@ def select_data(event):
 def update_paymentdata(gownerid,gplotid,gindid):
     cur, con = db.database_connect()
     cur.execute("use kpezdmc_version1")
-    query = f"select b.budget_head_name,p.amount,p.payment_date from payments p join budget_heads b on b.budget_head_id = p.budget_head_id where p.plot_id={gplotid} or p.owner_id={gownerid} or p.plot_id = {gplotid};"
+    query = f"select b.budget_head_name,p.amount,p.payment_date from payments p join budget_heads b on b.budget_head_id = p.budget_head_id where p.plot_id={gplotid} or p.owner_id={gownerid} or p.industry_id = {gindid} order by p.payment_date desc;"
     cur.execute(query)
     pay_record = cur.fetchall()
     paytreeview.delete(*paytreeview.get_children())
@@ -87,7 +98,15 @@ def update_paymentdata(gownerid,gplotid,gindid):
         
 # Function to update Balance tree
 def update_balancedata(gownerid,gplotid,gindid):
-    pass
+    cur, con = db.database_connect()
+    cur.execute("use kpezdmc_version1")
+    query = f"select b.budget_head_name,bb.balance,bb.update_at from balance bb join budget_heads b on b.budget_head_id = bb.budget_head_id where bb.plot_id={gplotid} or bb.owner_id={gownerid} or bb.industry_id = {gindid} order by bb.update_at desc;"
+    cur.execute(query)
+    bal_record = cur.fetchall()
+    baltreeview.delete(*baltreeview.get_children())
+    for record in bal_record:
+        baltreeview.insert('',ct.END,values=record)
+# Function for Search Record
 def search_record(searchcombo,searchentry):
     cond=searchcombo.get()
     value=f"'%{searchentry.get()}%'"
