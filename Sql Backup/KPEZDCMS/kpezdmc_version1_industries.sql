@@ -29,12 +29,12 @@ CREATE TABLE `industries` (
   `Ind_Status` varchar(50) DEFAULT NULL,
   `Ind_Mode` varchar(100) DEFAULT NULL,
   `Ind_Type` varchar(100) DEFAULT NULL,
-  `Coverd_Area` decimal(2,2) DEFAULT NULL,
+  `Coverd_Area` decimal(10,2) DEFAULT NULL,
   `plot_ID` int DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`Id`),
-  KEY `fk_plot_id_plot_table` (`plot_ID`),
+  UNIQUE KEY `unique_plot_id` (`plot_ID`),
   CONSTRAINT `fk_plot_id_plot_table` FOREIGN KEY (`plot_ID`) REFERENCES `plots` (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -45,6 +45,7 @@ CREATE TABLE `industries` (
 
 LOCK TABLES `industries` WRITE;
 /*!40000 ALTER TABLE `industries` DISABLE KEYS */;
+INSERT INTO `industries` VALUES (100,'AT Tech','Engineering','Opertional','Automatic',NULL,0.20,115,'2024-09-08 10:10:48',NULL),(101,'Khan Marble','Engineering','Under Construction','Automatic',NULL,0.20,114,'2024-09-08 10:12:05',NULL),(102,'AT Tech','Marble','Under Construction','Automatic',NULL,0.20,101,'2024-09-08 10:13:35',NULL),(103,'Test','Grinding','Opertional','Automatic',NULL,0.50,104,'2024-09-08 10:16:29',NULL),(104,'Ahmad Marble','Marble','Opertional','Automatic',NULL,0.40,102,'2024-09-08 10:27:21',NULL),(105,'Sohail Marble','Marble','Under Construction','Semi Automatic',NULL,0.50,105,'2024-09-09 16:11:30',NULL);
 /*!40000 ALTER TABLE `industries` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -57,4 +58,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-09-05 15:50:23
+-- Dump completed on 2024-09-10 12:45:18

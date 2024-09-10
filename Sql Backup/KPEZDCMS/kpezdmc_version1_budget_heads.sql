@@ -16,36 +16,28 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `industry_ownerships`
+-- Table structure for table `budget_heads`
 --
 
-DROP TABLE IF EXISTS `industry_ownerships`;
+DROP TABLE IF EXISTS `budget_heads`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `industry_ownerships` (
-  `id` int NOT NULL,
-  `industry_id` int NOT NULL,
-  `owner_id` int NOT NULL,
-  `start_date` date DEFAULT NULL,
-  `end_date` date DEFAULT NULL,
-  `i0_status` varchar(100) DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `fk_industry_id_industries_table` (`industry_id`),
-  KEY `fk_owner_id_owner_table` (`owner_id`),
-  CONSTRAINT `fk_industry_id_industries_table` FOREIGN KEY (`industry_id`) REFERENCES `industries` (`Id`),
-  CONSTRAINT `fk_owner_id_owner_table` FOREIGN KEY (`owner_id`) REFERENCES `ownertable` (`id`)
+CREATE TABLE `budget_heads` (
+  `budget_head_id` int NOT NULL,
+  `budget_head_name` varchar(100) DEFAULT NULL,
+  `description` varchar(150) DEFAULT NULL,
+  PRIMARY KEY (`budget_head_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `industry_ownerships`
+-- Dumping data for table `budget_heads`
 --
 
-LOCK TABLES `industry_ownerships` WRITE;
-/*!40000 ALTER TABLE `industry_ownerships` DISABLE KEYS */;
-/*!40000 ALTER TABLE `industry_ownerships` ENABLE KEYS */;
+LOCK TABLES `budget_heads` WRITE;
+/*!40000 ALTER TABLE `budget_heads` DISABLE KEYS */;
+INSERT INTO `budget_heads` VALUES (100,'Bore Hole',NULL),(101,'Maintanance',NULL),(102,'AGR',NULL),(103,'Lease Mony',NULL);
+/*!40000 ALTER TABLE `budget_heads` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -57,4 +49,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-09-05 15:50:24
+-- Dump completed on 2024-09-10 12:45:18
