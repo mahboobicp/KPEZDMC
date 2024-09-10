@@ -4,6 +4,7 @@ from tkinter import ttk
 from plotallotment import pltallotment 
 from industries import industries
 from payments import payments
+import database as db
 
 fontlable = ("Poppins",14)
 fontlmenu = ("Poppins",18,"bold")
@@ -11,7 +12,7 @@ fontdash = ("Poppins",24,"bold")
 fontentry = ("Arial",10,"bold")
 fontbtn = ("Arial",16,"bold")
 dfonts = ("Poppins",40,"bold")
-fnt = ("Poppins",14)
+fnt = ("Poppins",16)
 app =ct.CTk()
 app.geometry("1020x662+200+5")
 app.resizable(0,0)
@@ -31,10 +32,31 @@ menuframe.place(x=1,y=82)
 plotdetailsframe = ct.CTkFrame(app,width=200,height=250,fg_color="#7d6608",bg_color="#17202a")
 plotdetailsframe.place(x=200,y=110)
 plotnumber = tkinter.StringVar()
-totalplot = ct.CTkLabel(plotdetailsframe,text="Total Plots / ",font=fnt,text_color="white")
-totalplot.place(x=30,y=110)
-dtotalplots = ct.CTkLabel(plotdetailsframe,text="55",text_color="white",font=dfonts)
-dtotalplots.place(x=115,y=100)
+# Plots Details
+cur,con=db.database_connect()
+cur.execute("select count(*) from plots;")
+plotnumber = cur.fetchone()
+totalplot = f"Total Plots : {plotnumber[0]}"
+dtotalplots = ct.CTkLabel(plotdetailsframe,text=totalplot,text_color="white",font=fnt)
+dtotalplots.place(x=50,y=110)
+indplot = tkinter.StringVar()
+cur.execute("select count(*) from plots where Land_Type = 'Industrial';")
+indplot = cur.fetchone()
+industrialplot = f"Industerial Plots : {indplot[0]}"
+dindustrialplot = ct.CTkLabel(plotdetailsframe,text=industrialplot,text_color="white",font=fnt)
+dindustrialplot.place(x=30,y=140)
+cur.execute("select count(*) from plots where Land_Type = 'Commercial';")
+complot = cur.fetchone()
+commercialplot = f"Commercial Plots : {complot[0]}"
+dcommercialplot = ct.CTkLabel(plotdetailsframe,text=commercialplot,text_color="white",font=fnt)
+dcommercialplot.place(x=30,y=170)
+cur.execute("select count(*) from plots where Land_Type = 'Other';")
+othplot = cur.fetchone()
+if othplot == "None":
+    othplot = 00
+otherplot = f"Other Entity Plots : {othplot[0]}"
+otherplots = ct.CTkLabel(plotdetailsframe,text=otherplot,text_color="white",font=fnt)
+otherplots.place(x=30,y=200)
 plot_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\plotting.png")
 plotinfo = ct.CTkLabel(plotdetailsframe,image=plot_image,text="")
 plotinfo.pack()

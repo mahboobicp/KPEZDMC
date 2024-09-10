@@ -97,7 +97,7 @@ def save_record(plotnumberentery,zonecombo,
             
             # Data to be inserted
             data = (plotid,plotnumberentery.get(),zonecombo.get(),
-                        locationentery.get(),landtypecombo.get(),plotstatuscombo.get(),areaentery.get(),formatted_date)
+                        locationentery.get(),plotstatuscombo.get(),landtypecombo.get(),areaentery.get(),formatted_date)
 
             # Execute the query
             cur.execute(insert_query, data)

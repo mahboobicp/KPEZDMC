@@ -20,7 +20,8 @@ join industries i
 on i.id = p.industry_id
 join budget_heads b
 on b.budget_head_id = p.budget_head_id;
-
+## Search Query for Summary table 
+f"select b.budget_head_name,p.amount,p.payment_date from payments p join budget_heads b on b.budget_head_id = p.budget_head_id where p.plot_id={gplotid};"
 ## Search query for tree
 select p.plot_number,p.zone,p.Area,o.ownname,o.Mobile,i.ind_name,i.ind_nature,p.id,o.id
 from plots p
