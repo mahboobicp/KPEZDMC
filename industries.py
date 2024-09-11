@@ -73,6 +73,7 @@ def save_record(indnameentery,naturecombo,statuscombo,modecombo,areaentery,datee
 
 # Select Data from tree
 def select_data():
+    global treeview
     try:
         global plot_id,owner_id
         plot_id = ''
@@ -82,7 +83,7 @@ def select_data():
         row = content['values']
         plot_id = row[7]
         owner_id = row[8]
-        print(row)
+        print(f"Select Data : {row}")
         print(plot_id,owner_id)  # Print the values of the clicked row
         return plot_id,owner_id
     except:
@@ -91,6 +92,7 @@ def select_data():
 #Search Record
 
 def search_record(searchcombo,searchentry):
+    global treeview
     cond=searchcombo.get()
     value=f"'%{searchentry.get()}%'"
     if value == '':
