@@ -139,7 +139,7 @@ def treeview_data():
                 left join
                 industries i
                 on i.plot_id = p.id
-                order by i.created_at desc;"""
+                order by p.created_at desc;"""
     cur.execute(query)
     plot_record = cur.fetchall()
     treeview.delete(*treeview.get_children())

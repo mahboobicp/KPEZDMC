@@ -7,8 +7,30 @@ import mysql.connector
 from datetime import datetime
 from mysql.connector import Error
 import database as db
-#Search Record
 
+# Search Record If already exsist in record
+def investor_details(event,cnicentry,nameentry,mobileentery,emmailentery,addressentry):
+    cur,con = db.database_connect()
+    cur.execute(f"Select ownname,mobile,email,address from ownertable where cnic = {cnicentry.get()};")
+    result = cur.fetchone()
+    if result is not None:
+        nameentry.delete(0, ct.END)  # Clear existing text
+        nameentry.insert(0, result[0])  # Insert new text
+        mobileentery.delete(0, ct.END)  # Clear existing text
+        mobileentery.insert(0, result[1])  # Insert new text
+        emmailentery.delete(0, ct.END)  # Clear existing text
+        emmailentery.insert(0, result[2])  # Insert new text
+        addressentry.delete(0, ct.END)  # Clear existing text
+        addressentry.insert(0, result[3])  # Insert new text
+    else:
+       nameentry.delete(0, ct.END)  # Clear existing text 
+       mobileentery.delete(0, ct.END)  # Clear existing text
+       emmailentery.delete(0, ct.END)  # Clear existing text
+       addressentry.delete(0, ct.END)  # Clear existing text
+
+
+
+#Search Record
 def search_record(searchcombo,searchentry):
     cond=searchcombo.get()
     value=f"'%{searchentry.get()}%'"
@@ -297,6 +319,7 @@ def pltallotment(app):
                         background='darkblue', foreground='white', borderwidth=2)
 
     dateentery.grid(row=4,column=5,padx=(15,2))
+    cnicentry.bind("<FocusOut>", lambda event:investor_details(event,cnicentry,nameentry,mobileentery,emmailentery,addressentry))
     # End of right Frame
 
     # Strat of button Frame
