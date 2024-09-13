@@ -121,7 +121,28 @@ logs_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\cloud.png")
 logsinfo = ct.CTkLabel(eventsframe,image=logs_image,text="")
 logsinfo.pack()
 logstext = ct.CTkLabel(eventsframe,text="Recent Activities",font=fontdash,text_color="white")
-logstext.pack(padx=60,pady=(0,450))
+logstext.pack(padx=60,pady=(0,10))
+#payment Events Start
+cur,con =db.database_connect()
+query = """select i.ind_name,b.budget_head_name,p.amount
+            from payments p
+            join 
+            budget_heads b on
+            b.budget_head_id = p.budget_head_id
+            join industries i 
+            on i.id = p.industry_id
+            order by p.payment_date
+            limit 8;"""
+
+cur.execute(query)
+result=cur.fetchall()
+for res in result:
+    repo = f"{res[0]} Deposit  Rs. {res[2]} in {res[1]}"
+    eventlable =ct.CTkLabel(eventsframe,text=repo,font=fontlable,text_color="white")
+    linelabe =ct.CTkLabel(eventsframe,text="_______________________________",text_color="white",pady=-20)
+    linelabe.pack()
+    eventlable.pack()
+  
 
 # Start of menu Frame
 
