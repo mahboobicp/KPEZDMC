@@ -5,6 +5,14 @@ from plotallotment import pltallotment
 from industries import industries
 from payments import payments
 import database as db
+from tkinter import messagebox
+def close_app():
+       # Show a confirmation dialog
+    answer = messagebox.askyesno("Exit", "Are you sure you want to close the application?")
+    
+    # If user clicks "Yes", close the window
+    if answer:
+        app.destroy()
 
 fontlable = ("Poppins",14)
 fontlmenu = ("Poppins",18,"bold")
@@ -150,7 +158,8 @@ Transferbtn = ct.CTkButton(menuframe,image=transfer_image,border_width=2,fg_colo
 Transferbtn.pack()
 bifbtn = ct.CTkButton(menuframe,image=split_image,border_width=2,fg_color="#154360",border_color="#707b7c",text="Bifarcation",font=fontbtn,width=150,height=40,cursor="hand2")
 bifbtn.pack(padx=1,pady=5)
-exitbtn = ct.CTkButton(menuframe,image=switch_image,border_width=2,fg_color="#154360",border_color="#707b7c",text="Exit",font=fontbtn,width=150,height=40,cursor="hand2")
+exitbtn = ct.CTkButton(menuframe,image=switch_image,border_width=2,fg_color="#154360",border_color="#707b7c",text="Exit",
+                       font=fontbtn,width=150,height=40,cursor="hand2",command=lambda:close_app())
 exitbtn.pack()
 
 # End of Menu
