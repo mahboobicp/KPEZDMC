@@ -4,6 +4,7 @@ from tkinter import ttk
 from plotallotment import pltallotment 
 from industries import industries
 from payments import payments
+from operations import operations
 import database as db
 from tkinter import messagebox
 def close_app():
@@ -151,7 +152,7 @@ linelabe.pack()
 photo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\logo.png")
 alt_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\alt.png")
 factory_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\factory1.png")
-owner_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\owner.png")
+operation_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\operation.png")
 report_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\report.png")
 payment_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\payment1.png")
 transfer_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\transfer.png")
@@ -169,8 +170,9 @@ allotmentbtn.pack(padx=3,pady=5)
 industrybtn = ct.CTkButton(menuframe,image=factory_image,border_width=2,fg_color="#154360",border_color="#707b7c",
                            text="Industries",cursor="hand2",font=fontbtn,width=150,height=40,command=lambda:industries(app))
 industrybtn.pack()
-ownerbtn = ct.CTkButton(menuframe,image=owner_image,border_width=2,fg_color="#154360",border_color="#707b7c",text="Owner Info",font=fontbtn,cursor="hand2",width=150,height=40)
-ownerbtn.pack(padx=1,pady=5)
+operationbtn = ct.CTkButton(menuframe,image=operation_image,border_width=2,fg_color="#154360",border_color="#707b7c",
+                            text="Opertions",font=fontbtn,cursor="hand2",width=150,height=40,command=lambda:operations(app))
+operationbtn.pack(padx=1,pady=5)
 paymentbtn = ct.CTkButton(menuframe,image=payment_image,border_width=2,fg_color="#154360",border_color="#707b7c",text="Payments",
                           font=fontbtn,width=150,cursor="hand2",height=40,command=lambda:payments(app))
 paymentbtn.pack()
