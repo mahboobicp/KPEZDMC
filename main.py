@@ -14,13 +14,13 @@ def close_app():
     if answer:
         app.destroy()
 
-fontlable = ("Poppins",14)
+fontlable = ("Open Sans",14)
 fontlmenu = ("Poppins",18,"bold")
 fontdash = ("Poppins",24,"bold")
 fontentry = ("Arial",10,"bold")
 fontbtn = ("Arial",16,"bold")
 dfonts = ("Poppins",40,"bold")
-fnt = ("Open Sans",14,"bold")
+fnt = ("Open Sans",14)
 app =ct.CTk()
 app.geometry("1020x662+200+5")
 app.resizable(0,0)
