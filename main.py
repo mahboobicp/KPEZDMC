@@ -131,18 +131,19 @@ query = """select i.ind_name,b.budget_head_name,p.amount
             b.budget_head_id = p.budget_head_id
             join industries i 
             on i.id = p.industry_id
-            order by p.payment_date
+            order by p.payment_date desc
             limit 8;"""
 
 cur.execute(query)
 result=cur.fetchall()
 for res in result:
-    repo = f"{res[0]} Deposit  Rs. {res[2]} in {res[1]}"
+    repo = f"{res[0]} Deposit \n Rs. {res[2]} in {res[1]}"
     eventlable =ct.CTkLabel(eventsframe,text=repo,font=fontlable,text_color="white")
-    linelabe =ct.CTkLabel(eventsframe,text="_______________________________",text_color="white",pady=-20)
+    linelabe =ct.CTkLabel(eventsframe,text="~~~~~~~~~~~~~~~~~~~~~~~~~",text_color="white")
     linelabe.pack()
     eventlable.pack()
-  
+
+linelabe.pack()
 
 # Start of menu Frame
 
