@@ -10,6 +10,109 @@ import database as db
 gplotid=None
 gownerid=None
 gindid=None
+#Update Nature
+def updated_nature(newnaturecombo):
+    if newnaturecombo.get() == "Select Nature":
+        messagebox.showerror("Error","Please First Select Nature")
+    else:
+        try:
+            cur, con = db.database_connect()
+            cur.execute("use kpezdmc_version1")
+            if gindid is None:
+                messagebox.showerror("Error","First select the Industry from above tree")
+            else:
+                # Update industries table
+                current_date = datetime.now()
+
+                # Format the current date
+                formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")
+                update_query = f"update industries set ind_nature = '{newnaturecombo.get()}', updated_at = '{formatted_date}' where id = {gindid};"
+                # Define the SQL query to insert data
+                print(update_query)
+                print(gplotid,gindid,gownerid)
+                # Execute the query
+                cur.execute(update_query)
+                con.commit()
+              
+                #clear_fields(newnameentery)
+        except Error as e:
+                messagebox.showerror("Error",f"Database error : {e}")
+        finally:
+                if con.is_connected():
+                    cur.close()
+                    con.close()
+                    print("MySQL connection is closed")
+
+#Update Status
+def updated_status(newstatuscombo):
+    if newstatuscombo.get() == "Select Status":
+        messagebox.showerror("Error","Please First Select Status")
+    else:
+        try:
+            cur, con = db.database_connect()
+            cur.execute("use kpezdmc_version1")
+            if gindid is None:
+                messagebox.showerror("Error","First select the Industry from above tree")
+            else:
+                # Update industries table
+                current_date = datetime.now()
+
+                # Format the current date
+                formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")
+                update_query = f"update industries set ind_Status = '{newstatuscombo.get()}', updated_at = '{formatted_date}' where id = {gindid};"
+                # Define the SQL query to insert data
+                print(update_query)
+                print(gplotid,gindid,gownerid)
+                # Execute the query
+                cur.execute(update_query)
+                con.commit()
+              
+                #clear_fields(newnameentery)
+                
+        except Error as e:
+                messagebox.showerror("Error",f"Database error : {e}")
+        finally:
+                if con.is_connected():
+                    cur.close()
+                    con.close()
+                    print("MySQL connection is closed")
+
+#Update Name
+def update_name(newnameentery):
+    if newnameentery.get() == "":
+        messagebox.showerror("Error","Please Enter The New Name")
+    else:
+        try:
+            cur, con = db.database_connect()
+            cur.execute("use kpezdmc_version1")
+            if gindid is None:
+                messagebox.showerror("Error","First select the Industry from above tree")
+            else:
+                # Update industries table
+                current_date = datetime.now()
+
+                # Format the current date
+                formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")
+                update_query = f"update industries set ind_name = '{newnameentery.get()}', updated_at = '{formatted_date}' where id = {gindid};"
+                # Define the SQL query to insert data
+                print(update_query)
+                print(gplotid,gindid,gownerid)
+                # Execute the query
+                cur.execute(update_query)
+                con.commit()
+              
+                #clear_fields(newnameentery)
+                
+        except Error as e:
+                messagebox.showerror("Error",f"Database error : {e}")
+        finally:
+                if con.is_connected():
+                    cur.close()
+                    con.close()
+                    print("MySQL connection is closed")
+
+        # End of entery to industry table
+
 # Select Data from tree
 def select_data(event):
     global gownerid,gplotid,gindid,oldname
@@ -33,6 +136,8 @@ def select_data(event):
         gindid = row[9]
     print(gplotid,gownerid,gindid)
     oldname.set(f"Industry Name Is : {row[5]}")
+    oldstatus.set(f"Current Status Is : {row[4]}")
+    oldnature.set(f"Current Nature Is : {row[6]}")
     # Print the values of the clicked row
 
 #Search Record
@@ -100,7 +205,7 @@ def operations(app):
     gplotid = None
     gownerid = None
     gindid = None
-    global treeview,baltreeview,paytreeview,oldname
+    global treeview,baltreeview,paytreeview,oldname,oldstatus,newstatus,newstatuscombo,oldnature
     fontlable = ("Poppins",14)
     fontlmenu = ("Poppins",18,"bold")
     fontentry = ("Poppins",10,"bold")
@@ -212,14 +317,13 @@ def operations(app):
    # tab_view.place(x=10,y=20)
     # Add tabs to the TabView
     tab_view.add("Name Change")
+    tab_view.add("Status Change")
     tab_view.add("Nature Change")
-    tab_view.add("Director Change")
     tab_view.add("NOC For WAPDA")
 
     # Set default active tab (optional)
     tab_view.set("Name Change")
     # Add content to Name Change
-    
     label1 = ct.CTkLabel(tab_view.tab("Name Change"),text="Change of Name ", font=("Helvetica", 24,"bold"),text_color="white")
     label1.place(x=110,y=2)
     oldname = tkinter.StringVar()
@@ -236,17 +340,51 @@ def operations(app):
     newnameconflable = ct.CTkLabel(tab_view.tab("Name Change"),text="New Name Will be : ",font=("Helvetica", 18),text_color="white")
     newnameconflable.place(x=20,y=120)
     newnameconfirm = ct.CTkLabel(tab_view.tab("Name Change"),textvariable=newname,font=("Helvetica", 18,"bold"),text_color="white")
-    newnameconfirm.place(x=120,y=120)
+    newnameconfirm.place(x=180,y=120)
     savebtn = ct.CTkButton(tab_view.tab("Name Change"),text="Update Record",width=200,height=30,hover_color="darkgreen",cursor="hand2",
-                           fg_color="green",bg_color="#2c3e50",corner_radius=10,border_width=2,border_color="#17202a"
-                           )
+                           fg_color="green",bg_color="#2c3e50",corner_radius=10,border_width=2,border_color="#17202a",
+                           command=lambda:update_name(newnameentery))
     savebtn.place(x=110,y=160)
    
-    # Add content to Nature Change
-    label2 = ct.CTkLabel(tab_view.tab("Nature Change"),text="Nature Change", font=("Helvetica", 16))
-    label2.pack(pady=20)
 
-    # Add content to Director Change
-    label3 = ct.CTkLabel(tab_view.tab("Director Change"), text="This is content for Director Change", font=("Helvetica", 16))
-    label3.pack(pady=20)
+    # Add content to Status Change
+    label1 = ct.CTkLabel(tab_view.tab("Status Change"),text="Change of Name ", font=("Helvetica", 24,"bold"),text_color="white")
+    label1.place(x=110,y=2)
+    oldstatus = tkinter.StringVar()
+    oldstatus.set("Current Status : ")
+    oldstatuslable = ct.CTkLabel(tab_view.tab("Status Change"),textvariable=oldstatus,font=("Helvetica", 18),text_color="white")
+    oldstatuslable.place(x=20,y=40)
+    newstatuslable = ct.CTkLabel(tab_view.tab("Status Change"),text="Update Status     :   ",font=("Helvetica", 18),text_color="white")
+    newstatuslable.place(x=20,y=80)
+    newstatus=tkinter.StringVar()
+    newstatuscombo = ct.CTkComboBox(tab_view.tab("Status Change"),font=fontentry,width=180,
+                                values=["Select Status","Under Construction","Operational","Closed",],border_width=2,border_color="#17202a",
+                                fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
+    newstatuscombo.place(x=160,y=80)
+
+    
+    savebtn = ct.CTkButton(tab_view.tab("Status Change"),text="Update Record",width=200,height=30,hover_color="darkgreen",cursor="hand2",
+                           fg_color="green",bg_color="#2c3e50",corner_radius=10,border_width=2,border_color="#17202a",
+                           command=lambda:updated_status(newstatuscombo))
+    savebtn.place(x=110,y=160)
+     # Add content to Nature Change
+    label1 = ct.CTkLabel(tab_view.tab("Nature Change"),text="Change of Nature ", font=("Helvetica", 24,"bold"),text_color="white")
+    label1.place(x=110,y=2)
+    oldnature = tkinter.StringVar()
+    oldnature.set("Current Status : ")
+    oldnaturelable = ct.CTkLabel(tab_view.tab("Nature Change"),textvariable=oldnature,font=("Helvetica", 18),text_color="white")
+    oldnaturelable.place(x=20,y=40)
+    newnaturelable = ct.CTkLabel(tab_view.tab("Nature Change"),text="Update Nature     :   ",font=("Helvetica", 18),text_color="white")
+    newnaturelable.place(x=20,y=80)
+    newnaturecombo = ct.CTkComboBox(tab_view.tab("Nature Change"),font=fontentry,width=180,
+                                values=["Select Nature","Marble","Pharma","Engineering",],border_width=2,border_color="#17202a",
+                                fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
+    newnaturecombo.place(x=160,y=80)
+
+    
+    savebtn = ct.CTkButton(tab_view.tab("Nature Change"),text="Update Record",width=200,height=30,hover_color="darkgreen",cursor="hand2",
+                           fg_color="green",bg_color="#2c3e50",corner_radius=10,border_width=2,border_color="#17202a",
+                           command=lambda:updated_nature(newnaturecombo))
+    savebtn.place(x=110,y=160)
+
 
