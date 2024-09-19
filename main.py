@@ -8,7 +8,7 @@ from operations import operations
 import database as db
 from tkinter import messagebox
 def close_app():
-       # Show a confirmation dialog
+    # Show a confirmation dialog
     answer = messagebox.askyesno("Exit", "Are you sure you want to close the application?")
     
     # If user clicks "Yes", close the window
@@ -139,7 +139,7 @@ cur.execute(query)
 result=cur.fetchall()
 for res in result:
     repo = f"{res[0]} Deposit \n Rs. {res[2]} in {res[1]}"
-    eventlable =ct.CTkLabel(eventsframe,text=repo,font=fontlable,text_color="white")
+    eventlable =ct.CTkLabel(eventsframe,text=repo,font=("Arial",14),text_color="white")
     linelabe =ct.CTkLabel(eventsframe,text="~~~~~~~~~~~~~~~~~~~~~~~~~",text_color="white")
     linelabe.pack()
     eventlable.pack()

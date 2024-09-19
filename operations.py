@@ -10,7 +10,24 @@ import database as db
 gplotid=None
 gownerid=None
 gindid=None
-
+#Functioin to update blance table if name changed
+def update_balancedata_if_name_changed(gownerid,gplotid,gindid):
+    cur, con = db.database_connect()
+    cur.execute("use kpezdmc_version1")
+    recorcheck = f"SELECT budget_head_id FROM balance WHERE owner_id = {gownerid} AND (plot_id = {gplotid} OR industry_id = {gindid}) AND budget_head_id = (select budget_head_id from budget_heads where budget_head_name = 'AGR');"
+    cur.execute(recorcheck)
+    result = cur.fetchone()
+   
+    if result is None:
+         print("Not Found")
+        
+    else:
+       print("Found")
+       """  update_balance = UPDATE balance
+        SET balance = balance + 1500
+        WHERE owner_id = {gownerid}
+        AND (plot_id = {gplotid} OR industry_id = {gindid})
+        AND budget_head_id = NEW.budget_head_id; """
 # Function to update Balance tree
 def update_balancedata(gownerid,gplotid,gindid):
     cur, con = db.database_connect()
@@ -41,9 +58,14 @@ def updated_nature(newnaturecombo):
                 # Define the SQL query to insert data
                 print(update_query)
                 print(gplotid,gindid,gownerid)
-                # Execute the query
-                cur.execute(update_query)
-                con.commit()
+                # Show a confirmation dialog
+                answer = messagebox.askyesno("Confirm Update", "Are you sure you want to update the record?")
+                # If user clicks "Yes", close the window
+                if answer:
+                    # Execute the query
+                    cur.execute(update_query)
+                    con.commit()
+                    messagebox.showinfo("Success", "Record Updated Successfully!")
               
                 #clear_fields(newnameentery)
         except Error as e:
@@ -74,9 +96,14 @@ def updated_status(newstatuscombo):
                 # Define the SQL query to insert data
                 print(update_query)
                 print(gplotid,gindid,gownerid)
-                # Execute the query
-                cur.execute(update_query)
-                con.commit()
+                # Show a confirmation dialog
+                answer = messagebox.askyesno("Confirm Update", "Are you sure you want to update the record?")
+                # If user clicks "Yes", close the window
+                if answer:
+                    # Execute the query
+                    cur.execute(update_query)
+                    con.commit()
+                    messagebox.showinfo("Success", "Record Updated Successfully!")
               
                 #clear_fields(newnameentery)
                 
@@ -108,9 +135,14 @@ def update_name(newnameentery):
                 # Define the SQL query to insert data
                 print(update_query)
                 print(gplotid,gindid,gownerid)
-                # Execute the query
-                cur.execute(update_query)
-                con.commit()
+                # Show a confirmation dialog
+                answer = messagebox.askyesno("Confirm Update", "Are you sure you want to update the record?")
+                # If user clicks "Yes", close the window
+                if answer:
+                    # Execute the query
+                    cur.execute(update_query)
+                    con.commit()
+                    messagebox.showinfo("Success", "Record Updated Successfully!")
               
                 #clear_fields(newnameentery)
                 
@@ -150,6 +182,7 @@ def select_data(event):
     oldstatus.set(f"Current Status Is : {row[4]}")
     oldnature.set(f"Current Nature Is : {row[6]}")
     update_balancedata(gownerid,gplotid,gindid)
+    update_balancedata_if_name_changed(gownerid,gplotid,gindid)
     # Print the values of the clicked row
 
 #Search Record
