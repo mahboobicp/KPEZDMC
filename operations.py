@@ -14,20 +14,42 @@ gindid=None
 def update_balancedata_if_name_changed(gownerid,gplotid,gindid):
     cur, con = db.database_connect()
     cur.execute("use kpezdmc_version1")
-    recorcheck = f"SELECT budget_head_id FROM balance WHERE owner_id = {gownerid} AND (plot_id = {gplotid} OR industry_id = {gindid}) AND budget_head_id = (select budget_head_id from budget_heads where budget_head_name = 'AGR');"
+    recorcheck = f"SELECT budget_head_id FROM balance WHERE industry_id = {gindid} AND budget_head_id = (select budget_head_id from budget_heads where budget_head_name = 'Name Change');"
     cur.execute(recorcheck)
     result = cur.fetchone()
-   
     if result is None:
          print("Not Found")
-        
+         insert_query_balance = """INSERT INTO balance (balance_id,owner_id,plot_id,industry_id,budget_head_id,balance,update_at) 
+                                    VALUES (%s,%s,%s,%s,%s,%s,%s)"""
+        # Get plot id and owner id from tree
+        # Cureent Date
+         current_date = datetime.now()
+
+        # Format the current date
+         formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")  # Example format: 2024-09-03
+        # Data to be inserted
+         budgetheadid = 98
+         balance_id = db.get_balance_id("balance","balance_id")
+        # print(budgetheadid)
+         data = (balance_id,gownerid,gplotid,gindid,budgetheadid,50000,formatted_date)
+
+        # Execute the query
+         cur.execute(insert_query_balance, data)
+         con.commit()     
     else:
-       print("Found")
-       """  update_balance = UPDATE balance
-        SET balance = balance + 1500
-        WHERE owner_id = {gownerid}
-        AND (plot_id = {gplotid} OR industry_id = {gindid})
-        AND budget_head_id = NEW.budget_head_id; """
+       print(f"Found {result[0]}")
+       namechange = 15000
+
+       update_balance = """
+                        UPDATE balance 
+                        SET balance = balance + %s 
+                        where industry_id = %s
+                        AND budget_head_id = %s;"""
+       data = (namechange,gindid,result[0])
+       cur.execute(update_balance,data)
+       print(update_balance)
+       con.commit()
+       #update_balancedata_if_name_changed(gownerid,gplotid,gindid)
 # Function to update Balance tree
 def update_balancedata(gownerid,gplotid,gindid):
     cur, con = db.database_connect()
@@ -143,7 +165,7 @@ def update_name(newnameentery):
                     cur.execute(update_query)
                     con.commit()
                     messagebox.showinfo("Success", "Record Updated Successfully!")
-              
+                    update_balancedata_if_name_changed(gownerid,gplotid,gindid)
                 #clear_fields(newnameentery)
                 
         except Error as e:
@@ -182,7 +204,7 @@ def select_data(event):
     oldstatus.set(f"Current Status Is : {row[4]}")
     oldnature.set(f"Current Nature Is : {row[6]}")
     update_balancedata(gownerid,gplotid,gindid)
-    update_balancedata_if_name_changed(gownerid,gplotid,gindid)
+    #update_balancedata_if_name_changed(gownerid,gplotid,gindid)
     # Print the values of the clicked row
 
 #Search Record

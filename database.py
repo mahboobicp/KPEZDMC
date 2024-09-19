@@ -47,6 +47,19 @@ def get_id(table):
         last_id = result[0]
         id = last_id + 1
     return id
+def get_balance_id(table,id):
+    cur,con = database_connect()
+    # Calculate the plot ID
+    cur.execute(f"SELECT {id} FROM {table} ORDER BY {id} DESC LIMIT 1")
+    result = cur.fetchone() 
+    if result is None:
+        # If there's no row or id is NULL, insert the specific value (e.g., 1)
+        id = 100
+    else:
+        # If id is not NULL, get the last id and increment the value by 1
+        last_id = result[0]
+        id = last_id + 1
+    return id
 def get_budget_head(head):
     cur,con = database_connect()
     query = f"select budget_head_id from budget_heads where budget_head_name = '{head}';"
