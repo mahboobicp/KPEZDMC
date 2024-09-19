@@ -182,7 +182,7 @@ def payments(app):
     paymentsframe = ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
     paymentsframe.place(x=00,y=240)
     balanceframe = ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
-    balanceframe.place(x=450,y=370)
+    balanceframe.place(x=440,y=370)
     btnframe = ct.CTkFrame(indframe,fg_color="#17202a")
     btnframe.place(x=40,y=5)
     treeframe =ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
@@ -338,7 +338,7 @@ def payments(app):
     # Payment Summary Tree Start
     # Configure selected row colors
     paymentlable = ct.CTkLabel(sumaryframe,text="Payments Summary",font=("Arial",14,"bold"),
-                            text_color="#f8f9f9",bg_color="#808b96",width=393,height=20)
+                            text_color="#f8f9f9",bg_color="#808b96",width=410,height=22)
     paymentlable.pack(side=tkinter.TOP)
     style.map("Treeview",
             background=[('selected', '#2980b9')],  # Background color when row is selected
@@ -346,10 +346,10 @@ def payments(app):
     cols = ("bhn","amount","Date")
     vsb = ttk.Scrollbar(sumaryframe, orient="vertical")
     paytreeview = ttk.Treeview(sumaryframe,columns = cols, show="headings",height=6)
-    paytreeview.pack(side=tkinter.LEFT)
+    paytreeview.pack(side=tkinter.LEFT,padx=(4,0),pady=(0,4))
     paytreeview.column("bhn", width=170,stretch=False)
     paytreeview.heading ('bhn', text='Payment Head',anchor="center")
-    paytreeview.column("amount", width=90,anchor="center",stretch=False)
+    paytreeview.column("amount", width=100,anchor="center",stretch=False)
     paytreeview.heading ('amount', text='Amount')
     paytreeview.column ('Date',anchor="center",stretch=False,width=120)
     paytreeview.heading ('Date', text="Date",anchor="center")
@@ -360,18 +360,18 @@ def payments(app):
     vsb.config(command=paytreeview.yview)
     # Pack the paytreeview and scrollbar
     #h_scroll.pack(side=tkinter.BOTTOM, fill=tkinter.X)
-    vsb.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+    vsb.pack(side=tkinter.RIGHT, fill=tkinter.Y,padx=(0,2),pady=(1,4))
 
     # End of payment Tree
 
     # Start of Balance Tree
     balancelable = ct.CTkLabel(balanceframe,text="Balance Summary",font=("Arial",14,"bold"),
-                            text_color="#f8f9f9",bg_color="#808b96",width=393,height=20)
+                            text_color="#f8f9f9",bg_color="#808b96",width=410,height=22)
     balancelable.pack(side=tkinter.TOP)
     balcols = ("bhn","Balance","Date")
     balvs = ttk.Scrollbar(balanceframe, orient="vertical")
     baltreeview = ttk.Treeview(balanceframe,columns = balcols, show="headings",height=6)
-    baltreeview.pack(side=tkinter.LEFT)
+    baltreeview.pack(side=tkinter.LEFT,padx=(4,0),pady=(0,4))
     baltreeview.column("bhn", width=170,stretch=False)
     baltreeview.heading ('bhn', text='Payment Head',anchor="center")
     baltreeview.column("Balance", width=90,anchor="center",stretch=False)
@@ -385,6 +385,6 @@ def payments(app):
     balvs.config(command=baltreeview.yview)
     # Pack the baltreeview and scrollbar
     #h_scroll.pack(side=tkinter.BOTTOM, fill=tkinter.X)
-    balvs.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+    balvs.pack(side=tkinter.RIGHT, fill=tkinter.Y,padx=(0,4),pady=(0,4))
    
    

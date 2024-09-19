@@ -10,6 +10,17 @@ import database as db
 gplotid=None
 gownerid=None
 gindid=None
+
+# Function to update Balance tree
+def update_balancedata(gownerid,gplotid,gindid):
+    cur, con = db.database_connect()
+    cur.execute("use kpezdmc_version1")
+    query = f"select b.budget_head_name,bb.balance,bb.update_at from balance bb join budget_heads b on b.budget_head_id = bb.budget_head_id where bb.plot_id={gplotid} or bb.owner_id={gownerid} or bb.industry_id = {gindid} order by bb.update_at desc;"
+    cur.execute(query)
+    bal_record = cur.fetchall()
+    baltreeview.delete(*baltreeview.get_children())
+    for record in bal_record:
+        baltreeview.insert('',ct.END,values=record)
 #Update Nature
 def updated_nature(newnaturecombo):
     if newnaturecombo.get() == "Select Nature":
@@ -138,6 +149,7 @@ def select_data(event):
     oldname.set(f"Industry Name Is : {row[5]}")
     oldstatus.set(f"Current Status Is : {row[4]}")
     oldnature.set(f"Current Nature Is : {row[6]}")
+    update_balancedata(gownerid,gplotid,gindid)
     # Print the values of the clicked row
 
 #Search Record
@@ -219,7 +231,9 @@ def operations(app):
     treeframe =ct.CTkFrame(operationframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
     treeframe.place(x=0,y=60)
     tabsframe =ct.CTkFrame(operationframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
-    tabsframe.place(x=150,y=240)
+    tabsframe.place(x=5,y=320)
+    balanceframe = ct.CTkFrame(operationframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
+    balanceframe.place(x=430,y=320)
     photo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\back.png")
     homebtn = ct.CTkButton(backframe,image=photo_image,text="",font=fontbtn,width=30,hover_color="#1b4f72",fg_color="#17202a",bg_color="#17202a",
                             height=20,cursor="hand2",command=lambda:operationframe.place_forget())
@@ -251,7 +265,7 @@ def operations(app):
     cols = ("Plot #","Zone","Area","Owner","Status","indname","nature","Plot ID","Owner ID","Indid")
     vsb = ttk.Scrollbar(treeframe, orient="vertical")
     h_scroll = ttk.Scrollbar(operationframe, orient="horizontal")
-    treeview = ttk.Treeview(treeframe,columns = cols, show="headings",height=5,
+    treeview = ttk.Treeview(treeframe,columns = cols, show="headings",height=8,
                             yscrollcommand=vsb.set,xscrollcommand=h_scroll.set)
 
     treeview.column("Plot #", width=50,stretch=False)
@@ -291,13 +305,34 @@ def operations(app):
     treeview.bind('<<TreeviewSelect>>', lambda event: select_data(event='TreeviewSelect'))
     #db.database_connect()
 
+     #End of Tree Frame ###########################################
+    # Start of Balance Tree
+    balancelable = ct.CTkLabel(balanceframe,text="Balance Summary",font=("Arial",14,"bold"),
+                            text_color="#f8f9f9",bg_color="#808b96",width=420,height=25)
+    balancelable.pack(side=tkinter.TOP,pady=(2,0))
+    balcols = ("bhn","Balance","Date")
+    balvs = ttk.Scrollbar(balanceframe, orient="vertical")
+    baltreeview = ttk.Treeview(balanceframe,columns = balcols, show="headings",height=8)
+    baltreeview.pack(side=tkinter.LEFT,padx=(4,0),pady=(0,4))
+    baltreeview.column("bhn", width=170,stretch=False)
+    baltreeview.heading ('bhn', text='Payment Head',anchor="center")
+    baltreeview.column("Balance", width=110,anchor="center",stretch=False)
+    baltreeview.heading ('Balance', text='Balance')
+    baltreeview.column ('Date',anchor="center",stretch=False,width=120)
+    baltreeview.heading ('Date', text="Date",anchor="center")
+    
 
-    #End of Tree Frame ###########################################
-
+    baltreeview.configure(yscrollcommand=balvs.set)
+    # Add the horizontal scrollbar
+    balvs.config(command=baltreeview.yview)
+    # Pack the baltreeview and scrollbar
+    #h_scroll.pack(side=tkinter.BOTTOM, fill=tkinter.X)
+    balvs.pack(side=tkinter.RIGHT, fill=tkinter.Y,pady=(1,5),padx=(0,4))
+   
  
     # Strat of button Frame
     searchlable = ct.CTkLabel(btnframe,text="Search By :",text_color="white")
-    searchlable.grid(row=0,column=0,padx=(50,0),pady=15)
+    searchlable.grid(row=0,column=0,padx=(2,0),pady=15)
 
     searchcombo = ct.CTkComboBox(btnframe,font=fontentry,width=150,
                                 values=["Plot Number","Owner Name","Industry Name"],text_color="white",fg_color="#2c3e50",button_color="#707b7c",button_hover_color="#2471a3")
@@ -309,7 +344,9 @@ def operations(app):
 
     searchbtn = ct.CTkButton(btnframe,text="Search",fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",width=150,command=lambda:search_record(searchcombo,searchentry))
     searchbtn.grid(row=0,column=3,padx=(30,0),pady=15)
-
+    showallbtn = ct.CTkButton(btnframe,text="Show All",fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,
+                              border_width=2,border_color="#85929e",width=150,command=lambda:treeview_data())
+    showallbtn.grid(row=0,column=4,padx=(30,0),pady=15)
     # Start of Tabs Frame
     # Create a CTkTabView
     tab_view = ct.CTkTabview(tabsframe,fg_color="#2c3e50",bg_color="#17202a",text_color="white")
