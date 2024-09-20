@@ -8,6 +8,24 @@ from datetime import datetime
 from mysql.connector import Error
 import database as db
 
+# Function to convert acres to square feet and calculate the plot price
+def calculate_plot_price(area_in_acres,price_per_acre):
+    global gpricelable,plotpricelable
+    area_in_acres = float(area_in_acres)
+    price_per_acre = float(price_per_acre)
+    # 1 acre = 43,560 square feet
+    SQUARE_FEET_PER_ACRE = 43560
+    
+    # Convert acres to square feet
+    area_in_square_feet = area_in_acres * SQUARE_FEET_PER_ACRE
+    
+    # Calculate the price per square foot
+    price_per_square_foot = price_per_acre / SQUARE_FEET_PER_ACRE
+    
+    # Calculate the total price of the plot
+    plot_price = area_in_square_feet * price_per_square_foot
+    gpricelable_text = f"Price of {area_in_acres} Acre Plot is Rs. {plot_price} which is equal to {plot_price/1000000} M"
+    gpricelable.set(gpricelable_text)
 # Search Record If already exsist in record
 def investor_details(event,cnicentry,nameentry,mobileentery,emmailentery,addressentry):
     cur,con = db.database_connect()
@@ -58,7 +76,7 @@ def search_record(searchcombo,searchentry):
 def clear_fields(plotnumberentery,zonecombo,
                 locationentery,landtypecombo,plotstatuscombo,areaentery,
                 cnicentry,nameentry,mobileentery,emmailentery,
-                addressentry,dateentery):
+                addressentry,dateentery,priceentery):
     plotnumberentery.delete(0,ct.END)
     zonecombo.set("NEZ")
     locationentery.delete(0,ct.END)
@@ -72,6 +90,7 @@ def clear_fields(plotnumberentery,zonecombo,
     addressentry.delete(0,ct.END)
     from datetime import date
     dateentery.set_date(date.today())
+    priceentery.delete(0,ct.END)
 
 
 # Display data in treeview 
@@ -96,9 +115,9 @@ def treeview_data():
 def save_record(plotnumberentery,zonecombo,
                 locationentery,landtypecombo,plotstatuscombo,areaentery,
                 cnicentry,nameentry,mobileentery,emmailentery,
-                addressentry,dateentery):
+                addressentry,dateentery,priceentery):
     
-    if plotnumberentery.get() == "" or areaentery.get() == "" or cnicentry.get() == "" or nameentry.get() == "" :
+    if plotnumberentery.get() == "" or areaentery.get() == "" or cnicentry.get() == "" or nameentry.get() == "" or priceentery.get() == "":
         messagebox.showerror("Error","All fileds are required")
     else:
         try:
@@ -108,8 +127,8 @@ def save_record(plotnumberentery,zonecombo,
             # Data Entery into Plot Table
             plotid = db.get_id("plots") # Get Plot tabel Id auto incrment by 1
             # Define the SQL query to insert data
-            insert_query = """INSERT INTO plots (id,plot_number,zone,location,plot_status,land_type,area,created_at) 
-                                VALUES (%s, %s, %s,%s,%s,%s,%s,%s)"""
+            insert_query = """INSERT INTO plots (id,plot_number,zone,location,plot_status,land_type,area,price,created_at) 
+                                VALUES (%s, %s, %s,%s,%s,%s,%s,%s,%s)"""
 
             # Cureent Date
             current_date = datetime.now()
@@ -119,7 +138,8 @@ def save_record(plotnumberentery,zonecombo,
             
             # Data to be inserted
             data = (plotid,plotnumberentery.get(),zonecombo.get(),
-                        locationentery.get(),plotstatuscombo.get(),landtypecombo.get(),areaentery.get(),formatted_date)
+                        locationentery.get(),plotstatuscombo.get(),landtypecombo.get(),areaentery.get(),priceentery.get(),
+                        formatted_date)
 
             # Execute the query
             cur.execute(insert_query, data)
@@ -166,7 +186,7 @@ def save_record(plotnumberentery,zonecombo,
             clear_fields(plotnumberentery,zonecombo,
                     locationentery,landtypecombo,plotstatuscombo,areaentery,
                     cnicentry,nameentry,mobileentery,emmailentery,
-                    addressentry,dateentery)
+                    addressentry,dateentery,priceentery)
         except Error as e:
             messagebox.showerror("Error",f"Database error : {e}")
         finally:
@@ -177,7 +197,7 @@ def save_record(plotnumberentery,zonecombo,
         treeview_data()
 
 def pltallotment(app):
-    global treeview
+    global treeview,plotpricelable,gpricelable
     fontlable = ("Poppins",14)
     fontlmenu = ("Poppins",18,"bold")
     fontentry = ("Poppins",10,"bold")
@@ -194,11 +214,11 @@ def pltallotment(app):
     #plotframe.grid(row=1,column=0)
     plotframe.place(x=0,y=28)
     ownerframe = ct.CTkFrame(pltframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e")
-    ownerframe.place(x=0,y=155)
+    ownerframe.place(x=0,y=210)
     btnframe = ct.CTkFrame(pltframe,fg_color="#17202a")
-    btnframe.place(x=40,y=285)
+    btnframe.place(x=40,y=340)
     treeframe =ct.CTkFrame(pltframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
-    treeframe.place(x=0,y=320)
+    treeframe.place(x=0,y=375)
     # Plot details Frame
 
     plotdetails = ct.CTkLabel(plotframe,text="Enter Plot Details",font=("Arial",14,"bold"),
@@ -255,8 +275,19 @@ def pltallotment(app):
                                 fg_color="#154360",text_color="White",placeholder_text_color="white")
     areaentery.grid(row=2,column=5,padx=(0,0))
 
+    acrepricelable = ct.CTkLabel(plotframe,text="Price",font=fontlable,text_color="#f8f9f9")
+    acrepricelable.grid(row=3,column=0,padx=20,pady=12,sticky="w")
 
-
+    priceentery = ct.CTkEntry(plotframe,font=fontentry,width=180,
+                                placeholder_text="Enter Price Per Acre in Rs.",border_width=2,border_color="#17202a",
+                                fg_color="#154360",text_color="White",placeholder_text_color="white")
+    priceentery.grid(row=3,column=1,padx=(0,0))
+    priceentery.bind("<FocusOut>", lambda event:investor_details(event,cnicentry,nameentry,mobileentery,emmailentery,addressentry))
+    gpricelable = tkinter.StringVar()
+    gpricelable.set("Price Will Be Calculated")
+    plotpricelable = ct.CTkLabel(plotframe,text="",textvariable=gpricelable,font=fontlable,text_color="#f8f9f9")
+    plotpricelable.grid(row=3,column=2,columnspan=3,sticky="w")
+ 
     # End of Left Frame
 
     #################################################################################
@@ -319,7 +350,7 @@ def pltallotment(app):
                         background='darkblue', foreground='white', borderwidth=2)
 
     dateentery.grid(row=4,column=5,padx=(15,2))
-    cnicentry.bind("<FocusOut>", lambda event:investor_details(event,cnicentry,nameentry,mobileentery,emmailentery,addressentry))
+    cnicentry.bind("<FocusOut>", lambda event:calculate_plot_price(areaentery.get(), priceentery.get()))
     # End of right Frame
 
     # Strat of button Frame
@@ -328,7 +359,7 @@ def pltallotment(app):
                            fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",command=lambda:save_record(plotnumberentery,zonecombo,
                                                      locationentery,landtypecombo,plotstatuscombo,areaentery,
                                                      cnicentry,nameentry,mobileentery,emmailentery,
-                                                     addressentry,dateentery))
+                                                     addressentry,dateentery,priceentery))
     savebtn.grid(row=0,column=0)
 
     showbtn = ct.CTkButton(btnframe,text="Show All",width=110,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",command=lambda:treeview_data())
@@ -370,7 +401,7 @@ def pltallotment(app):
             background=[('selected', '#2980b9')],  # Background color when row is selected
             foreground=[('selected', 'white')]) # Text color when row is selected
     cols = ("Plot #","Zone","Area","CNIC","Owner","Mobile","Date")
-    treeview = ttk.Treeview(treeframe,columns = cols, show="headings",height=9,padding=1)
+    treeview = ttk.Treeview(treeframe,columns = cols, show="headings",height=7,padding=1)
 
     treeview.column("Plot #", width=50)
     treeview.heading ('Plot #', text='Plot #',anchor="center")
