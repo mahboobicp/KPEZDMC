@@ -9,7 +9,7 @@ from mysql.connector import Error
 import database as db
 
 # Function to convert acres to square feet and calculate the plot price
-def calculate_plot_price(area_in_acres,price_per_acre):
+def calculate_plot_price(event,area_in_acres,price_per_acre):
     global gpricelable,plotpricelable
     area_in_acres = float(area_in_acres)
     price_per_acre = float(price_per_acre)
@@ -259,34 +259,33 @@ def pltallotment(app):
                                 fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
     landtypecombo.grid(row=2,column=1)
 
-    plotstatuslable = ct.CTkLabel(plotframe,text="Status",font=fontlable,text_color="#f8f9f9")
-    plotstatuslable.grid(row=2,column=2,padx=(0,0),pady=12,sticky="w")
-
-    plotstatuscombo = ct.CTkComboBox(plotframe,font=fontentry,width=180,
-                                values=["Acquired","Available"],border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
-    plotstatuscombo.grid(row=2,column=3)
-
     arealable = ct.CTkLabel(plotframe,text="Area",font=fontlable,text_color="#f8f9f9")
-    arealable.grid(row=2,column=4,padx=00,pady=12,sticky="w")
+    arealable.grid(row=2,column=2,padx=00,pady=12,sticky="w")
 
     areaentery = ct.CTkEntry(plotframe,font=fontentry,width=180,
                                 placeholder_text="Enter Area in Acre",border_width=2,border_color="#17202a",
                                 fg_color="#154360",text_color="White",placeholder_text_color="white")
-    areaentery.grid(row=2,column=5,padx=(0,0))
+    areaentery.grid(row=2,column=3,padx=(0,0))
 
     acrepricelable = ct.CTkLabel(plotframe,text="Price",font=fontlable,text_color="#f8f9f9")
-    acrepricelable.grid(row=3,column=0,padx=20,pady=12,sticky="w")
+    acrepricelable.grid(row=2,column=4,padx=0,pady=12,sticky="w")
 
     priceentery = ct.CTkEntry(plotframe,font=fontentry,width=180,
                                 placeholder_text="Enter Price Per Acre in Rs.",border_width=2,border_color="#17202a",
                                 fg_color="#154360",text_color="White",placeholder_text_color="white")
-    priceentery.grid(row=3,column=1,padx=(0,0))
-    priceentery.bind("<FocusOut>", lambda event:investor_details(event,cnicentry,nameentry,mobileentery,emmailentery,addressentry))
+    priceentery.grid(row=2,column=5,padx=(0,0))
+    priceentery.bind("<FocusOut>", lambda event:calculate_plot_price(event,areaentery.get(),priceentery.get()))
+    plotstatuslable = ct.CTkLabel(plotframe,text="Status",font=fontlable,text_color="#f8f9f9")
+    plotstatuslable.grid(row=3,column=0,padx=(20,0),pady=12,sticky="w")
+
+    plotstatuscombo = ct.CTkComboBox(plotframe,font=fontentry,width=180,
+                                values=["Acquired","Available"],border_width=2,border_color="#17202a",
+                                fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
+    plotstatuscombo.grid(row=3,column=1)
     gpricelable = tkinter.StringVar()
     gpricelable.set("Price Will Be Calculated")
     plotpricelable = ct.CTkLabel(plotframe,text="",textvariable=gpricelable,font=fontlable,text_color="#f8f9f9")
-    plotpricelable.grid(row=3,column=2,columnspan=3,sticky="w")
+    plotpricelable.grid(row=3,column=2,columnspan=4,sticky="w")
  
     # End of Left Frame
 
