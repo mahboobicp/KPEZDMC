@@ -219,19 +219,19 @@ def pltallotment(app):
     homebtn = ct.CTkButton(backframe,image=photo_image,text="",font=fontbtn,width=30,hover_color="#1b4f72",fg_color="#17202a",bg_color="#17202a",
                             height=20,cursor="hand2",command=lambda:pltframe.place_forget())
     homebtn.pack(side="left")
-    plotframe = ct.CTkFrame(pltframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
+    plotframe = ct.CTkFrame(pltframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#04747e")
     #plotframe.grid(row=1,column=0)
     plotframe.place(x=0,y=28)
-    ownerframe = ct.CTkFrame(pltframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e")
+    ownerframe = ct.CTkFrame(pltframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#04747e")
     ownerframe.place(x=0,y=210)
     btnframe = ct.CTkFrame(pltframe,fg_color="#17202a")
     btnframe.place(x=40,y=340)
-    treeframe =ct.CTkFrame(pltframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
+    treeframe =ct.CTkFrame(pltframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#04747e")
     treeframe.place(x=0,y=375)
     # Plot details Frame
 
     plotdetails = ct.CTkLabel(plotframe,text="Enter Plot Details",font=("Arial",14,"bold"),
-                            text_color="#f8f9f9",bg_color="#808b96",width=850,height=20)
+                            text_color="#f8f9f9",bg_color="#04747e",width=850,height=20)
     plotdetails.grid(row=0,column=0,columnspan=6)
     plotnumberlable = ct.CTkLabel(plotframe,text="Plot #  ",font=fontlable,text_color="#f8f9f9")
     plotnumberlable.grid(row=1,column=0,padx=20,pady=12,sticky="w")
@@ -304,7 +304,7 @@ def pltallotment(app):
 
 
     plotdetails = ct.CTkLabel(ownerframe,text="Investor Information",font=("Arial",14,"bold"),
-                            text_color="#f8f9f9",bg_color="#808b96",width=850,height=20)
+                            text_color="#f8f9f9",bg_color="#04747e",width=850,height=20)
     plotdetails.grid(row=0,column=0,columnspan=6)
 
 

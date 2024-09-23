@@ -40,7 +40,7 @@ headings.grid(row=0,column=0,columnspan=5,sticky="w")
 titlebar = ct.CTkLabel(app,width=1180,height=20,text="WELCOME : Mahboob \t\t\t Time = 12 : 12 : 00",
                        font=("Arial",14,"bold"),text_color="#f8f9f9",fg_color="#5d6d7e")
 titlebar.grid(row=1,column=0,columnspan=3,sticky="s")
-menuframe = ct.CTkFrame(app,fg_color="#212f3c",bg_color="#212f3c",corner_radius=200,width=200,height=362)
+menuframe = ct.CTkFrame(app,fg_color="#013d42",bg_color="#013d42",corner_radius=200,width=200,height=362)
 menuframe.place(x=1,y=82)
 plotdetailsframe = ct.CTkFrame(app,width=200,height=250,fg_color="#7d6608",bg_color="#17202a")
 plotdetailsframe.place(x=200,y=110)
@@ -168,37 +168,37 @@ logimage.pack(padx=(20,20),pady=(20,20))
 menulable = ct.CTkLabel(menuframe,text="Menu",font=fontlmenu,text_color="#f8f9f9",corner_radius=50,
                         bg_color="#04747e",width=150,height=40)
 menulable.pack()
-homebtn = ct.CTkButton(menuframe,image=home_image,text="Home",border_width=2,fg_color="#212f3c",hover_color="#04747e",
+homebtn = ct.CTkButton(menuframe,image=home_image,text="Home",border_width=2,fg_color="#013d42",hover_color="#04747e",
                        bg_color="#212f3c",border_color="#04747e",font=fontbtn,width=150,
                             height=40,cursor="hand2",command=lambda:dashboard())
 homebtn.pack(padx=3,pady=2)
 
-allotmentbtn = ct.CTkButton(menuframe,image=alt_image,text="Allotment",border_width=2,fg_color="#212f3c",hover_color="#04747e",
+allotmentbtn = ct.CTkButton(menuframe,image=alt_image,text="Allotment",border_width=2,fg_color="#013d42",hover_color="#04747e",
                        bg_color="#212f3c",border_color="#04747e",font=fontbtn,width=150,
                             height=40,cursor="hand2",command=lambda:pltallotment(app))
 allotmentbtn.pack(padx=3,pady=2)
-industrybtn = ct.CTkButton(menuframe,image=factory_image,border_width=2,fg_color="#212f3c",hover_color="#04747e",
+industrybtn = ct.CTkButton(menuframe,image=factory_image,border_width=2,fg_color="#013d42",hover_color="#04747e",
                        bg_color="#212f3c",border_color="#04747e",
                            text="Industries",cursor="hand2",font=fontbtn,width=150,height=40,command=lambda:industries(app))
 industrybtn.pack(pady=2)
-operationbtn = ct.CTkButton(menuframe,image=operation_image,border_width=2,fg_color="#212f3c",hover_color="#04747e",
+operationbtn = ct.CTkButton(menuframe,image=operation_image,border_width=2,fg_color="#013d42",hover_color="#04747e",
                        bg_color="#212f3c",border_color="#04747e",
                             text="Opertions",font=fontbtn,cursor="hand2",width=150,height=40,command=lambda:operations(app))
 operationbtn.pack(padx=1,pady=2)
-paymentbtn = ct.CTkButton(menuframe,image=payment_image,border_width=2,fg_color="#212f3c",hover_color="#04747e",
+paymentbtn = ct.CTkButton(menuframe,image=payment_image,border_width=2,fg_color="#013d42",hover_color="#04747e",
                        bg_color="#212f3c",border_color="#04747e",text="Payments",
                           font=fontbtn,width=150,cursor="hand2",height=40,command=lambda:payments(app))
 paymentbtn.pack(pady=2)
-reportbtn = ct.CTkButton(menuframe,image=report_image,border_width=2,fg_color="#212f3c",hover_color="#04747e",
+reportbtn = ct.CTkButton(menuframe,image=report_image,border_width=2,fg_color="#013d42",hover_color="#04747e",
                        bg_color="#212f3c",border_color="#04747e",text="Reports",font=fontbtn,width=150,height=40,cursor="hand2")
 reportbtn.pack(padx=1,pady=2)
-Transferbtn = ct.CTkButton(menuframe,image=transfer_image,border_width=2,fg_color="#212f3c",hover_color="#04747e",
+Transferbtn = ct.CTkButton(menuframe,image=transfer_image,border_width=2,fg_color="#013d42",hover_color="#04747e",
                        bg_color="#212f3c",border_color="#04747e",text="Transfer",font=fontbtn,width=150,height=40,cursor="hand2")
 Transferbtn.pack()
-bifbtn = ct.CTkButton(menuframe,image=split_image,border_width=2,fg_color="#212f3c",hover_color="#04747e",
+bifbtn = ct.CTkButton(menuframe,image=split_image,border_width=2,fg_color="#013d42",hover_color="#04747e",
                        bg_color="#212f3c",border_color="#04747e",text="Bifarcation",font=fontbtn,width=150,height=40,cursor="hand2")
 bifbtn.pack(padx=1,pady=2)
-exitbtn = ct.CTkButton(menuframe,image=switch_image,border_width=2,fg_color="#212f3c",hover_color="#04747e",
+exitbtn = ct.CTkButton(menuframe,image=switch_image,border_width=2,fg_color="#013d42",hover_color="red",
                        bg_color="#212f3c",border_color="#04747e",text="Exit",
                        font=fontbtn,width=150,height=40,cursor="hand2",command=lambda:close_app())
 exitbtn.pack(pady=(2,10))
