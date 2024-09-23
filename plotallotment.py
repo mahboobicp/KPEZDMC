@@ -146,26 +146,32 @@ def save_record(plotnumberentery,zonecombo,
 
             # Execute the query
             cur.execute(insert_query, data)
-        
-            # Data Entery into OWNERTABLE 
-            ownerid = db.get_id("ownertable") # Get Owner Id Auto increment by 1
-            # Define the SQL query to insert data
-            insert_query = """INSERT INTO ownertable (id,cnic,ownname,mobile,email,address,created_at) 
-                                                    VALUES (%s, %s, %s,%s,%s,%s,%s)"""
+            # Data validation if already exist
+            cur.execute(f"Select id from ownertable where cnic = {cnicentry.get()};")
+            owner = cur.fetchall()
+            if owner is not None:
+                ownerid=owner[0][0]
+                print(f"Return Id is {ownerid}")
+            else:
+                # Data Entery into OWNERTABLE 
+                ownerid = db.get_id("ownertable") # Get Owner Id Auto increment by 1
+                # Define the SQL query to insert data
+                insert_query = """INSERT INTO ownertable (id,cnic,ownname,mobile,email,address,created_at) 
+                                                        VALUES (%s, %s, %s,%s,%s,%s,%s)"""
 
-            # Cureent Date
-            current_date = datetime.now()
+                # Cureent Date
+                current_date = datetime.now()
 
-            # Format the current date
-            formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")  # Example format: 2024-09-03
-            
-            # Data to be inserted
-            data = (ownerid,cnicentry.get(),nameentry.get(),mobileentery.get(),emmailentery.get(),
-                        addressentry.get(),formatted_date)
+                # Format the current date
+                formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")  # Example format: 2024-09-03
+                
+                # Data to be inserted
+                data = (ownerid,cnicentry.get(),nameentry.get(),mobileentery.get(),emmailentery.get(),
+                            addressentry.get(),formatted_date)
 
-            # Execute the query
-            cur.execute(insert_query, data) 
-            con.commit()
+                # Execute the query
+                cur.execute(insert_query, data) 
+                con.commit()
 
             # Data Entery into plot_ownership
             po_ownerid = db.get_id("plot_ownership") # Get plot_Ownership Id Auto increment by 1

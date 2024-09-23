@@ -38,3 +38,12 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+
+
+
+ SELECT COUNT(*)
+    FROM balance
+    WHERE owner_id = NEW.owner_id
+    AND (plot_id = NEW.plot_id OR industry_id = NEW.industry_id)
+    AND budget_head_id = NEW.budget_head_id;

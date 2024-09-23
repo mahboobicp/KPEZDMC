@@ -154,6 +154,7 @@ linelabe.pack()
 
 
 photo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\logo.png")
+home_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\home.png")
 alt_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\alt.png")
 factory_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\factory1.png")
 operation_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\operation.png")
@@ -167,7 +168,7 @@ logimage.pack(padx=(20,20),pady=(20,20))
 menulable = ct.CTkLabel(menuframe,text="Menu",font=fontlmenu,text_color="#f8f9f9",corner_radius=50,
                         bg_color="#04747e",width=150,height=40)
 menulable.pack()
-homebtn = ct.CTkButton(menuframe,image=alt_image,text="Home",border_width=2,fg_color="#212f3c",hover_color="#04747e",
+homebtn = ct.CTkButton(menuframe,image=home_image,text="Home",border_width=2,fg_color="#212f3c",hover_color="#04747e",
                        bg_color="#212f3c",border_color="#04747e",font=fontbtn,width=150,
                             height=40,cursor="hand2",command=lambda:dashboard())
 homebtn.pack(padx=3,pady=2)
