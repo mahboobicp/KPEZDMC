@@ -10,7 +10,7 @@ import database as db
 
 # Function to convert acres to square feet and calculate the plot price
 def calculate_plot_price(event,area_in_acres,price_per_acre):
-    global gpricelable,plotpricelable
+    global gpricelable,plotpricelable,plot_price
     area_in_acres = float(area_in_acres)
     price_per_acre = float(price_per_acre)
     # 1 acre = 43,560 square feet
@@ -24,8 +24,9 @@ def calculate_plot_price(event,area_in_acres,price_per_acre):
     
     # Calculate the total price of the plot
     plot_price = area_in_square_feet * price_per_square_foot
-    gpricelable_text = f"Price of {area_in_acres} Acre Plot is Rs. {plot_price} which is equal to {plot_price/1000000} M"
+    gpricelable_text = f"Price of {area_in_acres} Acre Plot is Rs. {round(plot_price,3)} which is equal to {round(plot_price/1000000,3)} M"
     gpricelable.set(gpricelable_text)
+    return plot_price
 # Search Record If already exsist in record
 def investor_details(event,cnicentry,nameentry,mobileentery,emmailentery,addressentry):
     cur,con = db.database_connect()
@@ -135,10 +136,12 @@ def save_record(plotnumberentery,zonecombo,
 
             # Format the current date
             formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")  # Example format: 2024-09-03
-            
+            #Get plot price from price calculator function 
+            global plot_price
+            print(f"plot price {plot_price}")
             # Data to be inserted
             data = (plotid,plotnumberentery.get(),zonecombo.get(),
-                        locationentery.get(),plotstatuscombo.get(),landtypecombo.get(),areaentery.get(),priceentery.get(),
+                        locationentery.get(),plotstatuscombo.get(),landtypecombo.get(),areaentery.get(),plot_price,
                         formatted_date)
 
             # Execute the query
@@ -349,7 +352,7 @@ def pltallotment(app):
                         background='darkblue', foreground='white', borderwidth=2)
 
     dateentery.grid(row=4,column=5,padx=(15,2))
-    cnicentry.bind("<FocusOut>", lambda event:calculate_plot_price(areaentery.get(), priceentery.get()))
+    cnicentry.bind("<FocusOut>", lambda event:investor_details(event,cnicentry,nameentry,mobileentery,emmailentery,addressentry))
     # End of right Frame
 
     # Strat of button Frame
