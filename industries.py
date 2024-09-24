@@ -261,7 +261,7 @@ def industries(app):
 
 
     statuscombo = ct.CTkComboBox(industryframe,font=fontentry,width=180,
-                                values=["Newly Alloted","Under Construction","Opertional","Closed"],border_width=2,border_color="#17202a",
+                                values=["Newly Alloted","Under Construction","Operational","Closed"],border_width=2,border_color="#17202a",
                                 fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
     statuscombo.grid(row=1,column=5)
 

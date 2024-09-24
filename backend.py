@@ -180,7 +180,7 @@ def update_name(newnameentery):
 
 # Select Data from tree
 def select_data(event):
-    global gownerid,gplotid,gindid,oldname
+    global gownerid,gplotid,gindid
     row = []
     index = treeview.selection()
     print(f"Index is {index}")
@@ -200,10 +200,7 @@ def select_data(event):
     else:
         gindid = row[9]
     print(gplotid,gownerid,gindid)
-    oldname.set(f"Industry Name Is : {row[5]}")
-    oldstatus.set(f"Current Status Is : {row[4]}")
-    oldnature.set(f"Current Nature Is : {row[6]}")
-    update_balancedata(gownerid,gplotid,gindid)
+
     #update_balancedata_if_name_changed(gownerid,gplotid,gindid)
     # Print the values of the clicked row
 
@@ -268,7 +265,7 @@ def treeview_data():
     treeview.tag_configure("highlight", background="lightyellow")
     for record in plot_record:
         treeview.insert('',ct.END,values=record)
-def operations(app):
+def backend(app):
     gplotid = None
     gownerid = None
     gindid = None
@@ -285,10 +282,6 @@ def operations(app):
     btnframe.place(x=40,y=5)
     treeframe =ct.CTkFrame(operationframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
     treeframe.place(x=0,y=60)
-    tabsframe =ct.CTkFrame(operationframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
-    tabsframe.place(x=5,y=320)
-    balanceframe = ct.CTkFrame(operationframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
-    balanceframe.place(x=430,y=320)
     photo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\back.png")
     homebtn = ct.CTkButton(backframe,image=photo_image,text="",font=fontbtn,width=30,hover_color="#1b4f72",fg_color="#17202a",bg_color="#17202a",
                             height=20,cursor="hand2",command=lambda:operationframe.place_forget())
@@ -361,29 +354,7 @@ def operations(app):
     #db.database_connect()
 
      #End of Tree Frame ###########################################
-    # Start of Balance Tree
-    balancelable = ct.CTkLabel(balanceframe,text="Balance Summary",font=("Arial",14,"bold"),
-                            text_color="#f8f9f9",bg_color="#808b96",width=420,height=25)
-    balancelable.pack(side=tkinter.TOP,pady=(2,0))
-    balcols = ("bhn","Balance","Date")
-    balvs = ttk.Scrollbar(balanceframe, orient="vertical")
-    baltreeview = ttk.Treeview(balanceframe,columns = balcols, show="headings",height=8)
-    baltreeview.pack(side=tkinter.LEFT,padx=(4,0),pady=(0,4))
-    baltreeview.column("bhn", width=170,stretch=False)
-    baltreeview.heading ('bhn', text='Payment Head',anchor="center")
-    baltreeview.column("Balance", width=110,anchor="center",stretch=False)
-    baltreeview.heading ('Balance', text='Balance')
-    baltreeview.column ('Date',anchor="center",stretch=False,width=120)
-    baltreeview.heading ('Date', text="Date",anchor="center")
     
-
-    baltreeview.configure(yscrollcommand=balvs.set)
-    # Add the horizontal scrollbar
-    balvs.config(command=baltreeview.yview)
-    # Pack the baltreeview and scrollbar
-    #h_scroll.pack(side=tkinter.BOTTOM, fill=tkinter.X)
-    balvs.pack(side=tkinter.RIGHT, fill=tkinter.Y,pady=(1,5),padx=(0,4))
-   
  
     # Strat of button Frame
     searchlable = ct.CTkLabel(btnframe,text="Search By :",text_color="white")
@@ -402,81 +373,6 @@ def operations(app):
     showallbtn = ct.CTkButton(btnframe,text="Show All",fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,
                               border_width=2,border_color="#85929e",width=150,command=lambda:treeview_data())
     showallbtn.grid(row=0,column=4,padx=(30,0),pady=15)
-    # Start of Tabs Frame
-    # Create a CTkTabView
-    tab_view = ct.CTkTabview(tabsframe,fg_color="#2c3e50",bg_color="#17202a",text_color="white")
-    tab_view.pack(expand=False, padx=4, pady=(2,4))
-   # tab_view.place(x=10,y=20)
-    # Add tabs to the TabView
-    tab_view.add("Name Change")
-    tab_view.add("Status Change")
-    tab_view.add("Nature Change")
-    tab_view.add("NOC For WAPDA")
-
-    # Set default active tab (optional)
-    tab_view.set("Name Change")
-    # Add content to Name Change
-    label1 = ct.CTkLabel(tab_view.tab("Name Change"),text="Change of Name ", font=("Helvetica", 24,"bold"),text_color="white")
-    label1.place(x=110,y=2)
-    oldname = tkinter.StringVar()
-    oldname.set("Industry Name : ")
-    oldnamelable = ct.CTkLabel(tab_view.tab("Name Change"),textvariable=oldname,font=("Helvetica", 18),text_color="white")
-    oldnamelable.place(x=20,y=40)
-    newnamelable = ct.CTkLabel(tab_view.tab("Name Change"),text="Enter name     :   ",font=("Helvetica", 18),text_color="white")
-    newnamelable.place(x=20,y=80)
-    newname = tkinter.StringVar()
-    newnameentery = ct.CTkEntry(tab_view.tab("Name Change"),font=("Helvetica", 18),width=200,
-                                placeholder_text="Enter New Name",border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",placeholder_text_color="white",textvariable=newname)
-    newnameentery.place(x=160,y=80)
-    newnameconflable = ct.CTkLabel(tab_view.tab("Name Change"),text="New Name Will be : ",font=("Helvetica", 18),text_color="white")
-    newnameconflable.place(x=20,y=120)
-    newnameconfirm = ct.CTkLabel(tab_view.tab("Name Change"),textvariable=newname,font=("Helvetica", 18,"bold"),text_color="white")
-    newnameconfirm.place(x=180,y=120)
-    savebtn = ct.CTkButton(tab_view.tab("Name Change"),text="Update Record",width=200,height=30,hover_color="darkgreen",cursor="hand2",
-                           fg_color="green",bg_color="#2c3e50",corner_radius=10,border_width=2,border_color="#17202a",
-                           command=lambda:update_name(newnameentery))
-    savebtn.place(x=110,y=160)
-   
-
-    # Add content to Status Change
-    label1 = ct.CTkLabel(tab_view.tab("Status Change"),text="Change of Name ", font=("Helvetica", 24,"bold"),text_color="white")
-    label1.place(x=110,y=2)
-    oldstatus = tkinter.StringVar()
-    oldstatus.set("Current Status : ")
-    oldstatuslable = ct.CTkLabel(tab_view.tab("Status Change"),textvariable=oldstatus,font=("Helvetica", 18),text_color="white")
-    oldstatuslable.place(x=20,y=40)
-    newstatuslable = ct.CTkLabel(tab_view.tab("Status Change"),text="Update Status     :   ",font=("Helvetica", 18),text_color="white")
-    newstatuslable.place(x=20,y=80)
-    newstatus=tkinter.StringVar()
-    newstatuscombo = ct.CTkComboBox(tab_view.tab("Status Change"),font=fontentry,width=180,
-                                values=["Select Status","Under Construction","Operational","Closed",],border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
-    newstatuscombo.place(x=160,y=80)
-
     
-    savebtn = ct.CTkButton(tab_view.tab("Status Change"),text="Update Record",width=200,height=30,hover_color="darkgreen",cursor="hand2",
-                           fg_color="green",bg_color="#2c3e50",corner_radius=10,border_width=2,border_color="#17202a",
-                           command=lambda:updated_status(newstatuscombo))
-    savebtn.place(x=110,y=160)
-     # Add content to Nature Change
-    label1 = ct.CTkLabel(tab_view.tab("Nature Change"),text="Change of Nature ", font=("Helvetica", 24,"bold"),text_color="white")
-    label1.place(x=110,y=2)
-    oldnature = tkinter.StringVar()
-    oldnature.set("Current Status : ")
-    oldnaturelable = ct.CTkLabel(tab_view.tab("Nature Change"),textvariable=oldnature,font=("Helvetica", 18),text_color="white")
-    oldnaturelable.place(x=20,y=40)
-    newnaturelable = ct.CTkLabel(tab_view.tab("Nature Change"),text="Update Nature     :   ",font=("Helvetica", 18),text_color="white")
-    newnaturelable.place(x=20,y=80)
-    newnaturecombo = ct.CTkComboBox(tab_view.tab("Nature Change"),font=fontentry,width=180,
-                                values=["Select Nature","Marble","Pharma","Engineering",],border_width=2,border_color="#17202a",
-                                fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
-    newnaturecombo.place(x=160,y=80)
-
     
-    savebtn = ct.CTkButton(tab_view.tab("Nature Change"),text="Update Record",width=200,height=30,hover_color="darkgreen",cursor="hand2",
-                           fg_color="green",bg_color="#2c3e50",corner_radius=10,border_width=2,border_color="#17202a",
-                           command=lambda:updated_nature(newnaturecombo))
-    savebtn.place(x=110,y=160)
-
 
