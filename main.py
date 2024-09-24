@@ -29,16 +29,16 @@ fnt = ("Open Sans",14)
 app =ct.CTk()
 app.geometry("1020x662+200+5")
 app.resizable(0,0)
-app.config(background="#17202a")
+app.config(background="#001c1f")
 app.title("KPEZDMC IMS")
 logo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\industry.png")
 headings = ct.CTkLabel(app,width=1180,image=logo_image,compound="left",height=60,text=" KPEZDMC Industries Information System",
-                       font=("Poppins",28,"bold"),text_color="#f8f9f9",fg_color="#283747",anchor="w")
+                       font=("Poppins",28,"bold"),text_color="#f8f9f9",fg_color="#001c1f",anchor="w")
 
 headings.grid(row=0,column=0,columnspan=5,sticky="w")
 
 titlebar = ct.CTkLabel(app,width=1180,height=20,text="WELCOME : Mahboob \t\t\t Time = 12 : 12 : 00",
-                       font=("Arial",14,"bold"),text_color="#f8f9f9",fg_color="#5d6d7e")
+                       font=("Arial",14,"bold"),text_color="#f8f9f9",fg_color="#025c64")
 titlebar.grid(row=1,column=0,columnspan=3,sticky="s")
 menuframe = ct.CTkFrame(app,fg_color="#013d42",bg_color="#013d42",corner_radius=200,width=200,height=362)
 menuframe.place(x=1,y=82)
@@ -105,7 +105,7 @@ closed = cur.fetchone()
 closetxt = f"Close Units : {closed[0]}"
 closelbl = ct.CTkLabel(industrydetailsframe,text=closetxt,text_color="white",font=fnt)
 closelbl.place(x=65,y=200)
-# Industries details End
+# Start of Paymnets details 
 paymentdetailsframe = ct.CTkFrame(app,width=200,height=250,fg_color="#6c3483",bg_color="#17202a")
 paymentdetailsframe.place(x=200,y=400)
 pay_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\payment.png")
@@ -113,13 +113,98 @@ payinfo = ct.CTkLabel(paymentdetailsframe,image=pay_image,text="")
 payinfo.pack()
 paytext = ct.CTkLabel(paymentdetailsframe,text="Payment Info",font=fontdash,text_color="white")
 paytext.pack(padx=30,pady=(0,160))
+cash_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\money.png")
+# Start of Bore Hole
+queryforpayment = """
+                SELECT SUM(amount) 
+                FROM payments
+                WHERE budget_head_id = (SELECT budget_head_id FROM budget_heads WHERE budget_head_name = 'Bore Hole')
+                AND MONTH(payment_date) = MONTH(CURRENT_DATE())
+                AND YEAR(payment_date) = YEAR(CURRENT_DATE());
+                """
+cur.execute(queryforpayment)
+fetchamount = cur.fetchone()
+amounttext = f"-  Bore Hole : {fetchamount[0]}"
+amountlable = ct.CTkLabel(paymentdetailsframe,text=amounttext,text_color="white",font=("Arial",14))
+amountlable.place(x=25,y=125)
+# End of Bore Hole Calculation
+# Start of Maintanance calculation
+queryforpayment = """
+                SELECT SUM(amount) 
+                FROM payments
+                WHERE budget_head_id = (SELECT budget_head_id FROM budget_heads WHERE budget_head_name = 'Maintanance')
+                AND MONTH(payment_date) = MONTH(CURRENT_DATE())
+                AND YEAR(payment_date) = YEAR(CURRENT_DATE());
+                """
+cur.execute(queryforpayment)
+fetchamount = cur.fetchone()
+amounttext = f"-  Maintanance : {fetchamount[0]}"
+amountlable = ct.CTkLabel(paymentdetailsframe,text=amounttext,text_color="white",font=("Arial",14))
+amountlable.place(x=25,y=150)
+# End of Maintanance 
+# Start of AGR
+queryforpayment = """
+                SELECT SUM(amount) 
+                FROM payments
+                WHERE budget_head_id = (SELECT budget_head_id FROM budget_heads WHERE budget_head_name = 'AGR')
+                AND MONTH(payment_date) = MONTH(CURRENT_DATE())
+                AND YEAR(payment_date) = YEAR(CURRENT_DATE());
+                """
+cur.execute(queryforpayment)
+fetchamount = cur.fetchone()
+amounttext = f"-  AGR : {fetchamount[0]}"
+amountlable = ct.CTkLabel(paymentdetailsframe,text=amounttext,text_color="white",font=("Arial",14))
+amountlable.place(x=25,y=175)
+# End of AGR
+# Start of Land Price 
+queryforpayment = """
+                SELECT SUM(amount) 
+                FROM payments
+                WHERE budget_head_id = (SELECT budget_head_id FROM budget_heads WHERE budget_head_name = 'Land Price')
+                AND MONTH(payment_date) = MONTH(CURRENT_DATE())
+                AND YEAR(payment_date) = YEAR(CURRENT_DATE());
+                """
+cur.execute(queryforpayment)
+fetchamount = cur.fetchone()
+amounttext = f"-  Land Price : {fetchamount[0]/1000000} M"
+amountlable = ct.CTkLabel(paymentdetailsframe,text=amounttext,text_color="white",font=("Arial",14))
+amountlable.place(x=25,y=200)
+#end of Land Price
+recivables = ct.CTkLabel(paymentdetailsframe,image=cash_image,text="")
+recivables.place(x=25,y=100)
+recivablestext = ct.CTkLabel(paymentdetailsframe,text="Recivables",font=("Poppins",16,"bold"),text_color="white")
+recivablestext.place(x=56,y=102)
 otherdetailsframe = ct.CTkFrame(app,width=200,height=250,fg_color="#b9770e",bg_color="#17202a")
 otherdetailsframe.place(x=450,y=400)
+# Start of Summary widget
 sum_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\summary.png")
 suminfo = ct.CTkLabel(otherdetailsframe,image=sum_image,text="")
 suminfo.pack()
 sumtext = ct.CTkLabel(otherdetailsframe,text="Summary",font=fontdash,text_color="white")
-sumtext.pack(padx=50,pady=(0,160))
+sumtext.pack(padx=50,pady=(0,0))
+#Sumary calculation
+query = """select i.ind_name,b.budget_head_name,p.amount
+            from payments p
+            join 
+            budget_heads b on
+            b.budget_head_id = p.budget_head_id
+            join industries i 
+            on i.id = p.industry_id
+            order by p.payment_date desc
+            limit 2;"""
+
+cur.execute(query)
+result=cur.fetchall()
+for res in result:
+    repo = f"{res[0]} Deposit \n Rs. {res[2]} in {res[1]}"
+    eventlable =ct.CTkLabel(otherdetailsframe,text=repo,font=("Arial",14),text_color="white")
+    linelabe =ct.CTkLabel(otherdetailsframe,text="~~~~~~~~~~~~~~~~~~~~~",text_color="white")
+    linelabe.pack()
+    eventlable.pack()
+
+linelabe =ct.CTkLabel(otherdetailsframe,text="~~~~~~~~~~~~~~~~~~~~~",text_color="white")
+linelabe.pack(pady=(0,10))
+#End Summary calculation
 eventsframe = ct.CTkFrame(app,width=290,height=540,fg_color="#78281f",bg_color="#17202a")
 eventsframe.place(x=700,y=110)
 logs_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\cloud.png")

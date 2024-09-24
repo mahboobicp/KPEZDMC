@@ -1,3 +1,5 @@
 button border and hover color : #04747e
 
-app workspace color : #17202a 
+app workspace color : #001c1f
+
+Title Bar color : #025c64
