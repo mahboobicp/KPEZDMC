@@ -211,30 +211,32 @@ logs_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\cloud.png")
 logsinfo = ct.CTkLabel(eventsframe,image=logs_image,text="")
 logsinfo.pack()
 logstext = ct.CTkLabel(eventsframe,text="Recent Activities",font=fontdash,text_color="white")
-logstext.pack(padx=60,pady=(0,10))
+logstext.pack(padx=60,pady=(0,0))
 #payment Events Start
 cur,con =db.database_connect()
-query = """select i.ind_name,b.budget_head_name,p.amount
-            from payments p
-            join 
-            budget_heads b on
-            b.budget_head_id = p.budget_head_id
-            join industries i 
-            on i.id = p.industry_id
-            order by p.payment_date desc
-            limit 8;"""
+query = """
+        select i.ind_name,a.changed_field,a.old_value,a.new_value 
+        from industries_audit a
+        join industries i
+        on
+        i.id = a.industry_id
+        limit 5;
+        """
 
 cur.execute(query)
 result=cur.fetchall()
 for res in result:
-    repo = f"{res[0]} Deposit \n Rs. {res[2]} in {res[1]}"
+    repo = f"Industry : {res[0]} \n {res[1]} Changed From \n {res[2]} To {res[3]}"
     eventlable =ct.CTkLabel(eventsframe,text=repo,font=("Arial",14),text_color="white")
     linelabe =ct.CTkLabel(eventsframe,text="~~~~~~~~~~~~~~~~~~~~~~~~~",text_color="white")
     linelabe.pack()
     eventlable.pack()
 
-linelabe.pack()
-
+linelabe =ct.CTkLabel(eventsframe,text="~~~~~~~~~~~~~~~~~~~~~~~~~",text_color="white")
+linelabe.pack(pady=(0,0))
+evetdetails = ct.CTkLabel(eventsframe,text="Details of Most Recent Activities",font=("Poppins",17,"bold"),
+                          text_color="#025c64",bg_color="white",corner_radius=10)
+evetdetails.pack(pady=(0,10))
 # Start of menu Frame
 
 
