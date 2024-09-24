@@ -106,7 +106,7 @@ def search_record(searchcombo,searchentry):
             cond = "i.ind_name"
         cur,con = db.database_connect()
         cur.execute("use kpezdmc_version1")
-        query =f"select p.plot_number,p.zone,p.Area,o.ownname,o.Mobile,i.ind_name,i.ind_nature from plots p join plot_ownership po on p.id = po.plot_id join ownertable o on o.id = po.owner_id left join industries i on i.plot_id = p.id where {cond} like {value};"
+        query =f"select p.plot_number,p.zone,p.Area,o.ownname,o.Mobile,i.ind_name,i.ind_nature,p.id,o.id from plots p join plot_ownership po on p.id = po.plot_id join ownertable o on o.id = po.owner_id left join industries i on i.plot_id = p.id where {cond} like {value};"
         print(query)
         cur.execute(query)
         result = cur.fetchall()

@@ -37,9 +37,9 @@ headings = ct.CTkLabel(app,width=1180,image=logo_image,compound="left",height=60
 
 headings.grid(row=0,column=0,columnspan=5,sticky="w")
 
-titlebar = ct.CTkLabel(app,width=1180,height=20,text="WELCOME : Mahboob \t\t\t Time = 12 : 12 : 00",
+titlebar = ct.CTkLabel(app,width=1180,height=20,text="WELCOME : Mahboob Ur Rahman \t\t\t\t\t Time : 00-00-00",
                        font=("Arial",14,"bold"),text_color="#f8f9f9",fg_color="#025c64")
-titlebar.grid(row=1,column=0,columnspan=3,sticky="s")
+titlebar.grid(row=1,column=0,columnspan=5,sticky="ew",padx=(0,300))
 menuframe = ct.CTkFrame(app,fg_color="#013d42",bg_color="#013d42",corner_radius=200,width=200,height=362)
 menuframe.place(x=1,y=82)
 plotdetailsframe = ct.CTkFrame(app,width=200,height=250,fg_color="#7d6608",bg_color="#17202a")
@@ -173,7 +173,7 @@ amountlable.place(x=25,y=200)
 recivables = ct.CTkLabel(paymentdetailsframe,image=cash_image,text="")
 recivables.place(x=25,y=100)
 recivablestext = ct.CTkLabel(paymentdetailsframe,text="Recivables",font=("Poppins",16,"bold"),text_color="white")
-recivablestext.place(x=56,y=102)
+recivablestext.place(x=60,y=102)
 otherdetailsframe = ct.CTkFrame(app,width=200,height=250,fg_color="#b9770e",bg_color="#17202a")
 otherdetailsframe.place(x=450,y=400)
 # Start of Summary widget
@@ -220,6 +220,8 @@ query = """
         join industries i
         on
         i.id = a.industry_id
+        order 
+        by a.changed_at desc
         limit 5;
         """
 

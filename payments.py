@@ -60,12 +60,14 @@ def save_record(paymentgeadcombo,amountentery,dateentery):
 
 # Select Data from tree
 def select_data(event):
-    global gownerid,gplotid,gindid
+    global gownerid,gplotid,gindid,treeview
     row = []
-    index = treeview.selection()
+    index = treeview.focus()
+    content = treeview.item(index,"values")
+    """ index = treeview.selection()
     print(f"Index is {index}")
-    content = treeview.item(index)
-    row = content['values']
+    content = treeview.item(index) """
+    row = content
     print(row)
     if row[7] == 'None':
         gplotid = 0
@@ -87,6 +89,7 @@ def select_data(event):
 #Search Record
 # Function to update payment tree
 def update_paymentdata(gownerid,gplotid,gindid):
+    global paytreeview,baltreeview,treeview
     cur, con = db.database_connect()
     cur.execute("use kpezdmc_version1")
     query = f"select b.budget_head_name,p.amount,p.payment_date from payments p join budget_heads b on b.budget_head_id = p.budget_head_id where p.plot_id={gplotid} and p.owner_id={gownerid} or p.industry_id = {gindid} order by p.payment_date desc;"
@@ -98,6 +101,7 @@ def update_paymentdata(gownerid,gplotid,gindid):
         
 # Function to update Balance tree
 def update_balancedata(gownerid,gplotid,gindid):
+    global baltreeview,treeview,paytreeview
     cur, con = db.database_connect()
     cur.execute("use kpezdmc_version1")
     query = f"select b.budget_head_name,bb.balance,bb.update_at from balance bb join budget_heads b on b.budget_head_id = bb.budget_head_id where bb.plot_id={gplotid} and bb.owner_id={gownerid} or bb.industry_id = {gindid} order by bb.update_at desc;"
@@ -108,6 +112,7 @@ def update_balancedata(gownerid,gplotid,gindid):
         baltreeview.insert('',ct.END,values=record)
 # Function for Search Record
 def search_record(searchcombo,searchentry):
+    global baltreeview,paytreeview,treeview
     cond=searchcombo.get()
     value=f"'%{searchentry.get()}%'"
     if value == '':
@@ -121,7 +126,7 @@ def search_record(searchcombo,searchentry):
             cond = "i.ind_name"
         cur,con = db.database_connect()
         cur.execute("use kpezdmc_version1")
-        query =f"select p.plot_number,p.zone,p.Area,o.ownname,o.Mobile,i.ind_name,i.ind_nature,p.id,i.id,o.id from plots p join plot_ownership po on p.id = po.plot_id join ownertable o on o.id = po.owner_id left join industries i on i.plot_id = p.id where {cond} like {value};"
+        query =f"select p.plot_number,p.zone,p.Area,o.ownname,o.Mobile,i.ind_name,i.ind_nature,p.id,o.id,i.id from plots p join plot_ownership po on p.id = po.plot_id join ownertable o on o.id = po.owner_id left join industries i on i.plot_id = p.id where {cond} like {value};"
         #print(query)
         cur.execute(query)
         result = cur.fetchall()
@@ -146,6 +151,7 @@ def clear_fields(paymentgeadcombo,amountentery,dateentery):
 
 # Display data in treeview 
 def treeview_data():
+    global baltreeview,paytreeview,treeview
     cur, con = db.database_connect()
     cur.execute("use kpezdmc_version1")
     query = """select p.plot_number,p.zone,p.Area,o.ownname,o.Mobile,i.ind_name,i.ind_nature,p.id,o.id,i.id

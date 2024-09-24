@@ -149,7 +149,8 @@ def save_record(plotnumberentery,zonecombo,
             # Data validation if already exist
             cur.execute(f"Select id from ownertable where cnic = {cnicentry.get()};")
             owner = cur.fetchall()
-            if owner is not None:
+            print(f"owner ID{owner}")
+            if owner:
                 ownerid=owner[0][0]
                 print(f"Return Id is {ownerid}")
             else:
