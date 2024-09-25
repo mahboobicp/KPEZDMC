@@ -84,7 +84,7 @@ for industry in industries:
     print(industry)
     # Example logic for calculating the balance based on covered area (you can modify this logic)
     #new_balance = coverd_area * 100  # Placeholder for balance calculation based on area
-    new_balance = 12000
+    new_balance = 8000
     # Get the current datetime
     now = datetime.now()
 
