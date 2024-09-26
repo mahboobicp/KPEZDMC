@@ -60,28 +60,34 @@ def save_record(paymentgeadcombo,amountentery,dateentery):
 
 # Select Data from tree
 def select_data(event):
-    global gownerid,gplotid,gindid,treeview
+    global gownerid,gplotid,gindid,oldname,treeview,selected_item_global 
     row = []
-    index = treeview.focus()
-    content = treeview.item(index,"values")
-    """ index = treeview.selection()
-    print(f"Index is {index}")
-    content = treeview.item(index) """
-    row = content
-    print(row)
-    if row[7] == 'None':
-        gplotid = 0
+    selected_item = treeview.selection()  # Get selected item
+    if selected_item:
+        selected_item_global = selected_item[0]  # Save the selection globally
+        row = treeview.item(selected_item_global, "values")
+        print(f"Selected: {row}")
+        print(row)
+        if row[7] is None:
+            gplotid = 0
+        else:
+            gplotid = row[7]
+        if row[8] == 'None':
+            gownerid = 0
+        else:
+            gownerid = row[8]
+        if row[9] == 'None':
+            gindid = 0
+        else:
+            gindid = row[9]
+    
     else:
-        gplotid = row[7]
-    if row[8] == 'None':
-        gownerid = 0
-    else:
-        gownerid = row[8]
-    if row[9] == 'None':
-        gindid = 0
-    else:
-        gindid = row[9]
+        print("No row selected")
+        selected_item_global = None  # Clear the global if no row is selected
+    
+  
     print(gplotid,gownerid,gindid)
+
     update_paymentdata(gownerid,gplotid,gindid)
     update_balancedata(gownerid,gplotid,gindid)
     # Print the values of the clicked row
