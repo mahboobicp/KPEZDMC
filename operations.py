@@ -10,46 +10,55 @@ import database as db
 gplotid=None
 gownerid=None
 gindid=None
-#Functioin to update blance table if name changed
-def update_balancedata_if_name_changed(gownerid,gplotid,gindid):
+
+# Global variable to set selection
+selected_item_global = None
+
+def show_allRecord(tree):
+    global selected_item_global
+    tree.unbind("<<TreeviewSelect>>")
+    
+    # Clear the Treeview
+    for row in tree.get_children():
+        tree.delete(row)
+    # Insert new data into the Treeview
     cur, con = db.database_connect()
+    global treeview, treeflag
+    treeflag = True
     cur.execute("use kpezdmc_version1")
-    recorcheck = f"SELECT budget_head_id FROM balance WHERE industry_id = {gindid} AND budget_head_id = (select budget_head_id from budget_heads where budget_head_name = 'Name Change');"
-    cur.execute(recorcheck)
-    result = cur.fetchone()
-    if result is None:
-         print("Not Found")
-         insert_query_balance = """INSERT INTO balance (balance_id,owner_id,plot_id,industry_id,budget_head_id,balance,update_at) 
-                                    VALUES (%s,%s,%s,%s,%s,%s,%s)"""
-        # Get plot id and owner id from tree
-        # Cureent Date
-         current_date = datetime.now()
+    query = """select p.plot_number,p.zone,p.Area,o.ownname,i.ind_status,i.ind_name,i.ind_nature,p.id,o.id,i.id
+                from plots p
+                join
+                plot_ownership po
+                on p.id = po.plot_id
+                join
+                ownertable o
+                on o.id = po.owner_id
+                left join
+                industries i
+                on i.plot_id = p.id
+                order by i.created_at desc;"""
+    cur.execute(query)
+    plot_record = cur.fetchall()
+    #treeview.delete(*treeview.get_children())
+    for record in plot_record:
+        tree.insert('',ct.END,values=record)
+    selected_item_global = None
+    # Rebind the event after updating the Treeview
+    tree.bind("<<TreeviewSelect>>", select_data)
+    print("Treeview updated with new data.")
+    
+    
+def clear_treeview(tree):
+    for row in tree.get_children():
+        tree.delete(row)
 
-        # Format the current date
-         formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")  # Example format: 2024-09-03
-        # Data to be inserted
-         budgetheadid = 98
-         balance_id = db.get_balance_id("balance","balance_id")
-        # print(budgetheadid)
-         data = (balance_id,gownerid,gplotid,gindid,budgetheadid,50000,formatted_date)
-
-        # Execute the query
-         cur.execute(insert_query_balance, data)
-         con.commit()     
-    else:
-       print(f"Found {result[0]}")
-       namechange = 15000
-
-       update_balance = """
-                        UPDATE balance 
-                        SET balance = balance + %s 
-                        where industry_id = %s
-                        AND budget_head_id = %s;"""
-       data = (namechange,gindid,result[0])
-       cur.execute(update_balance,data)
-       print(update_balance)
-       con.commit()
-       #update_balancedata_if_name_changed(gownerid,gplotid,gindid)
+# Function to unbind all events from the Treeview
+def unbind_events(tree):
+    tree.unbind("<<TreeviewSelect>>")  # Unbind Treeview select event
+    tree.unbind("<ButtonRelease-1>")   # Unbind left mouse button release event
+    # Add any other events that were bound
+#Functioin to update blance table if name changed
 # Function to update Balance tree
 def update_balancedata(gownerid,gplotid,gindid):
     cur, con = db.database_connect()
@@ -88,6 +97,7 @@ def updated_nature(newnaturecombo):
                     cur.execute(update_query)
                     con.commit()
                     messagebox.showinfo("Success", "Record Updated Successfully!")
+                    db.update_balancedata_if_nature_changed(gownerid,gplotid,gindid)
               
                 #clear_fields(newnameentery)
         except Error as e:
@@ -165,7 +175,8 @@ def update_name(newnameentery):
                     cur.execute(update_query)
                     con.commit()
                     messagebox.showinfo("Success", "Record Updated Successfully!")
-                    update_balancedata_if_name_changed(gownerid,gplotid,gindid)
+                    db.update_balancedata_if_name_changed(gownerid,gplotid,gindid)
+                    treeview_data()
                 #clear_fields(newnameentery)
                 
         except Error as e:
@@ -180,29 +191,37 @@ def update_name(newnameentery):
 
 # Select Data from tree
 def select_data(event):
-    global gownerid,gplotid,gindid,oldname
+    global gownerid,gplotid,gindid,oldname,treeview,selected_item_global 
     row = []
-    index = treeview.selection()
-    print(f"Index is {index}")
-    content = treeview.item(index)
-    row = content['values']
-    print(row)
-    if row[7] == 'None':
-        gplotid = 0
+    selected_item = treeview.selection()  # Get selected item
+    if selected_item:
+        selected_item_global = selected_item[0]  # Save the selection globally
+        row = treeview.item(selected_item_global, "values")
+        oldname.set(f"Industry Name Is : {row[5]}")
+        oldstatus.set(f"Current Status Is : {row[4]}")
+        oldnature.set(f"Current Nature Is : {row[6]}")
+        print(f"Selected: {row}")
+        print(row)
+        if row[7] is None:
+            gplotid = 0
+        else:
+            gplotid = row[7]
+        if row[8] == 'None':
+            gownerid = 0
+        else:
+            gownerid = row[8]
+        if row[9] == 'None':
+            gindid = 0
+        else:
+            gindid = row[9]
+    
     else:
-        gplotid = row[7]
-    if row[8] == 'None':
-        gownerid = 0
-    else:
-        gownerid = row[8]
-    if row[9] == 'None':
-        gindid = 0
-    else:
-        gindid = row[9]
+        print("No row selected")
+        selected_item_global = None  # Clear the global if no row is selected
+    
+  
     print(gplotid,gownerid,gindid)
-    oldname.set(f"Industry Name Is : {row[5]}")
-    oldstatus.set(f"Current Status Is : {row[4]}")
-    oldnature.set(f"Current Nature Is : {row[6]}")
+
     update_balancedata(gownerid,gplotid,gindid)
     #update_balancedata_if_name_changed(gownerid,gplotid,gindid)
     # Print the values of the clicked row
@@ -249,6 +268,8 @@ def clear_fields(paymentgeadcombo,amountentery,dateentery):
 # Display data in treeview 
 def treeview_data():
     cur, con = db.database_connect()
+    global treeview, treeflag
+    treeflag = True
     cur.execute("use kpezdmc_version1")
     query = """select p.plot_number,p.zone,p.Area,o.ownname,i.ind_status,i.ind_name,i.ind_nature,p.id,o.id,i.id
                 from plots p
@@ -357,7 +378,7 @@ def operations(app):
     #vsb.grid(row=0,column=1,pady=0)
     #h_scroll.place(x=4,y=495,width=840)
     #treeview.bind("Button-1>",select_data(event='TreeviewSelect'))
-    treeview.bind('<<TreeviewSelect>>', lambda event: select_data(event='TreeviewSelect'))
+    treeview.bind('<<TreeviewSelect>>', select_data)
     #db.database_connect()
 
      #End of Tree Frame ###########################################
@@ -400,7 +421,7 @@ def operations(app):
     searchbtn = ct.CTkButton(btnframe,text="Search",fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",width=150,command=lambda:search_record(searchcombo,searchentry))
     searchbtn.grid(row=0,column=3,padx=(30,0),pady=15)
     showallbtn = ct.CTkButton(btnframe,text="Show All",fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,
-                              border_width=2,border_color="#85929e",width=150,command=lambda:treeview_data())
+                              border_width=2,border_color="#85929e",width=150,command=lambda:show_allRecord(treeview))
     showallbtn.grid(row=0,column=4,padx=(30,0),pady=15)
     # Start of Tabs Frame
     # Create a CTkTabView

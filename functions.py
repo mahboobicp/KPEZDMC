@@ -1,3 +1,13 @@
+import customtkinter as ct
+import tkinter 
+from tkinter import messagebox
+from tkinter import ttk
+from tkcalendar import DateEntry
+import mysql.connector
+from datetime import datetime
+from mysql.connector import Error
+import database as db
+
 def calculate_maintenance_price(area_in_acres,price_per_acre):
     area_in_acres = float(area_in_acres)
     price_per_acre = float(price_per_acre)
@@ -13,3 +23,6 @@ def calculate_maintenance_price(area_in_acres,price_per_acre):
     # Calculate the total price of the plot
     plot_price = area_in_square_feet * price_per_square_foot
     return plot_price
+
+
+

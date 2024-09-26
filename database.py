@@ -84,7 +84,90 @@ def get_budget_head(head):
         data = (budget_head_id,head)
         cur.execute(insert_query,data)
         con.commit()
-        print(head)
         return budget_head_id
     else:
         return result[0]
+
+
+def update_balancedata_if_nature_changed(ownerid,plotid,indid):
+    cur, con = database_connect()
+    cur.execute("use kpezdmc_version1")
+    budgetid = get_budget_head("Nature Change")
+    print(f"Return ID {budgetid}")
+    recorcheck = f"select balance_id from balance where owner_id = {ownerid} and plot_id = {plotid} and industry_id = {indid} and budget_head_id = {budgetid};"
+    cur.execute(recorcheck)
+    result = cur.fetchone()
+    print(f"Balance id {result}")
+    if result is None:
+         print("Not Found")
+         print(f"owner id {ownerid} plot id {plotid} industry id {indid}")
+         insert_query_balance = """INSERT INTO balance (balance_id,owner_id,plot_id,industry_id,budget_head_id,balance,update_at) 
+                                    VALUES (%s,%s,%s,%s,%s,%s,%s)"""
+        # Get plot id and owner id from tree
+        # Cureent Date
+         current_date = datetime.now()
+
+        # Format the current date
+         formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")  # Example format: 2024-09-03
+        # Data to be inserted
+         balance_id = get_balance_id("balance","balance_id")
+        # print(budgetheadid)
+         data = (balance_id,ownerid,plotid,indid,budgetid,10000,formatted_date)
+
+        # Execute the query
+         cur.execute(insert_query_balance, data)
+         con.commit()     
+    else:
+       print(f"Found {result[0]}")
+       namechange = 10000
+
+       update_balance = """
+                        UPDATE balance 
+                        SET balance = balance + %s 
+                        where balance_id = %s;"""
+       data = (namechange,result[0])
+       cur.execute(update_balance,data)
+       print(update_balance)
+       con.commit()
+
+
+def update_balancedata_if_name_changed(ownerid,plotid,indid):
+    cur, con = database_connect()
+    cur.execute("use kpezdmc_version1")
+    budgetid = get_budget_head("Name Change")
+    print(f"Return ID {budgetid}")
+    recorcheck = f"select balance_id from balance where owner_id = {ownerid} and plot_id = {plotid} and industry_id = {indid} and budget_head_id = {budgetid};"
+    cur.execute(recorcheck)
+    result = cur.fetchone()
+    print(f"Balance id {result}")
+    if result is None:
+         print("Not Found")
+         print(f"owner id {ownerid} plot id {plotid} industry id {indid}")
+         insert_query_balance = """INSERT INTO balance (balance_id,owner_id,plot_id,industry_id,budget_head_id,balance,update_at) 
+                                    VALUES (%s,%s,%s,%s,%s,%s,%s)"""
+        # Get plot id and owner id from tree
+        # Cureent Date
+         current_date = datetime.now()
+
+        # Format the current date
+         formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")  # Example format: 2024-09-03
+        # Data to be inserted
+         balance_id = get_balance_id("balance","balance_id")
+        # print(budgetheadid)
+         data = (balance_id,ownerid,plotid,indid,budgetid,50000,formatted_date)
+
+        # Execute the query
+         cur.execute(insert_query_balance, data)
+         con.commit()     
+    else:
+       print(f"Found {result[0]}")
+       namechange = 50000
+       update_balance = """
+                        UPDATE balance 
+                        SET balance = balance + %s 
+                        where balance_id = %s;"""
+       data = (50000,result[0])
+       cur.execute(update_balance,(50000,result[0]))
+       print(update_balance)
+       print(result[0])
+       con.commit()
