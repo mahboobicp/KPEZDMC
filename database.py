@@ -33,6 +33,21 @@ def database_connect():
             cursor.close()
             connection.close()
             print("MySQL connection is closed") """
+def calculate_maintenance_price(area_in_acres,price_per_acre):
+    area_in_acres = float(area_in_acres)
+    price_per_acre = float(price_per_acre)
+    # 1 acre = 43,560 square feet
+    SQUARE_FEET_PER_ACRE = 43560
+    
+    # Convert acres to square feet
+    area_in_square_feet = area_in_acres * SQUARE_FEET_PER_ACRE
+    
+    # Calculate the price per square foot
+    price_per_square_foot = price_per_acre / SQUARE_FEET_PER_ACRE
+    
+    # Calculate the total price of the plot
+    plot_price = area_in_square_feet * price_per_square_foot
+    return plot_price
 
 def get_id(table):
     cur,con = database_connect()
@@ -171,3 +186,196 @@ def update_balancedata_if_name_changed(ownerid,plotid,indid):
        print(update_balance)
        print(result[0])
        con.commit()
+
+
+
+def updatebudget(head,amount):
+    cursor,connection = database_connect()
+        # Specify the budget head (e.g., Maintenance, Bore Hole, AGR, etc.)
+    budget_head_name = head.get()
+    charges = float(amount.get())
+
+    # Get the budget_head_id for the specified budget head
+    cursor.execute("SELECT budget_head_id FROM budget_heads WHERE budget_head_name = %s", (budget_head_name,))
+    budget_head_id = cursor.fetchone()
+    if budget_head_id is None:
+        cursor.execute("Select budget_head_id from budget_heads order by budget_head_id desc limit 1")
+        lastid = cursor.fetchone()
+        lastid1 = lastid[0] + 1
+        budget_head_id = lastid1
+        print(lastid1)
+        cursor.execute(
+            """
+            INSERT INTO budget_heads(budget_head_id,budget_head_name)
+            VALUES (%s, %s)
+            """,
+            (lastid1,budget_head_name)
+        )
+        connection.commit()
+    elif budget_head_id:
+        budget_head_id = budget_head_id[0]
+    else:
+        print("Database Error")
+        exit()
+
+
+
+    # Fetch all industries
+    fetchall = """
+                select 
+                    p.Area,
+                    o.ownname,
+                    i.ind_name,
+                    p.id,o.id,
+                    i.id
+                from 
+                    plots p
+                join
+                    plot_ownership po
+                on 
+                    p.id = po.plot_id
+                join
+                    ownertable o
+                on 
+                    o.id = po.owner_id
+                left join
+                    industries i
+                on 
+                    i.plot_id = p.id
+                where 
+                    i.ind_name is not null
+                order by 
+                    i.created_at desc;
+                """
+    cursor.execute(fetchall)
+    industries = cursor.fetchall()
+
+    # Loop through each industry
+    for industry in industries:
+        coverd_area,ownername,industryname,plotid,ownerid,industryid = industry
+        #print(industry)
+        # Check if the industry already has a balance entry for the specified budget head
+        if industryid is None:
+            industryid = 0
+        balance = f"SELECT balance_id, balance FROM balance WHERE ((owner_id = {ownerid} and plot_id = {plotid}) or (industry_id = {industryid})) AND budget_head_id = {budget_head_id};"
+        cursor.execute(balance)
+    
+        existing_balance = cursor.fetchone()
+        print(industry)
+        # Example logic for calculating the balance based on covered area (you can modify this logic)
+        if budget_head_name == "AGR" or budget_head_name == "Maintenance" or budget_head_name == "Land Price":
+            new_balance = calculate_maintenance_price(coverd_area,charges)
+        else:
+            new_balance = charges
+        # Get the current datetime
+        now = datetime.now()
+
+        if existing_balance:
+            # Update the balance if the record exists
+            balanceid, current_balance = existing_balance
+            updatequery = """
+                UPDATE balance 
+                SET balance = balance + %s,update_at = %s 
+                WHERE balance_id = %s
+                """
+            cursor.execute(updatequery,(new_balance,now,balanceid))
+            print(f"Updated balance for industry {industryid} with budget head {budget_head_name}.")
+        else:
+            # Insert a new record if no balance entry exists for the industry
+            cursor.execute(
+                """
+                INSERT INTO balance (owner_id, plot_id, industry_id, budget_head_id, balance, max_balance, update_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """,
+                (ownerid, plotid, industryid, budget_head_id, new_balance, new_balance, now)  # Assuming owner_id and plot_id are not relevant here
+            )
+            print(f"Inserted new balance record for industry {industryid} with budget head {budget_head_name}.")
+
+    # Commit the transaction
+    connection.commit()
+
+    # Close the cursor and connection
+    cursor.close()
+    connection.close()
+
+def updatebudgetforsingle(head,amount,gplotid,gownerid,gindid):
+    cursor,connection = database_connect()
+        # Specify the budget head (e.g., Maintenance, Bore Hole, AGR, etc.)
+    budget_head_name = head.get()
+    charges = float(amount.get())
+
+    # Get the budget_head_id for the specified budget head
+    cursor.execute("SELECT budget_head_id FROM budget_heads WHERE budget_head_name = %s", (budget_head_name,))
+    budget_head_id = cursor.fetchone()
+    if budget_head_id is None:
+        cursor.execute("Select budget_head_id from budget_heads order by budget_head_id desc limit 1")
+        lastid = cursor.fetchone()
+        lastid1 = lastid[0] + 1
+        budget_head_id = lastid1
+        print(lastid1)
+        cursor.execute(
+            """
+            INSERT INTO budget_heads(budget_head_id,budget_head_name)
+            VALUES (%s, %s)
+            """,
+            (lastid1,budget_head_name)
+        )
+        connection.commit()
+    elif budget_head_id:
+        budget_head_id = budget_head_id[0]
+    else:
+        print("Database Error")
+        exit()
+
+
+
+    # Fetch all industries
+    fetchall = f"select p.Area,o.ownname,i.ind_name,p.id,o.id,i.id from plots p join plot_ownership po on p.id = po.plot_id join ownertable o on o.id = po.owner_id left join industries i on i.plot_id = p.id where p.id = {gplotid} and o.id = {gownerid} and i.id = {gindid} and i.ind_name is not null order by i.created_at desc;"
+    cursor.execute(fetchall)
+    industries = cursor.fetchone()
+
+    
+    coverd_area,ownername,industryname,plotid,ownerid,industryid = industries
+    #print(industry)
+    # Check if the industry already has a balance entry for the specified budget head
+    balance = f"SELECT balance_id, balance FROM balance WHERE ((owner_id = {ownerid} and plot_id = {plotid}) or (industry_id = {industryid})) AND budget_head_id = {budget_head_id};"
+    cursor.execute(balance)
+
+    existing_balance = cursor.fetchone()
+    print(industries)
+    # Example logic for calculating the balance based on covered area (you can modify this logic)
+    if budget_head_name == "AGR" or budget_head_name == "Maintenance" or budget_head_name == "Land Price":
+        new_balance = calculate_maintenance_price(coverd_area,charges)
+    else:
+        new_balance = charges
+    # Get the current datetime
+    now = datetime.now()
+
+    if existing_balance:
+        # Update the balance if the record exists
+        balanceid, current_balance = existing_balance
+        updatequery = """
+            UPDATE balance 
+            SET balance = balance + %s,update_at = %s 
+            WHERE balance_id = %s
+            """
+        cursor.execute(updatequery,(new_balance,now,balanceid))
+        print(f"Updated balance for industry {industryid} with budget head {budget_head_name}.")
+    else:
+        # Insert a new record if no balance entry exists for the industry
+        cursor.execute(
+            """
+            INSERT INTO balance (owner_id, plot_id, industry_id, budget_head_id, balance, max_balance, update_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """,
+            (ownerid, plotid, industryid, budget_head_id, new_balance, new_balance, now)  # Assuming owner_id and plot_id are not relevant here
+        )
+        print(f"Inserted new balance record for industry {industryid} with budget head {budget_head_name}.")
+
+    # Commit the transaction
+    connection.commit()
+
+    # Close the cursor and connection
+    cursor.close()
+    connection.close()
+    

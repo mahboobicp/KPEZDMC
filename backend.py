@@ -10,48 +10,87 @@ import database as db
 gplotid=None
 gownerid=None
 gindid=None
-#Functioin to update blance table if name changed
-def update_balancedata_if_name_changed(gownerid,gplotid,gindid):
+def update_entry(event):
+    global entry_var,budgetheadcombo
+    print(entry_var)
+    selected_value = budgetheadcombo.get()  # Get the selected value from the ComboBox
+    if selected_value == "AGR":
+        entry_var.set(10000)  # Set the value in the CTkEntry
+    elif selected_value == "Maintenance":
+        entry_var.set(15000)  # Set the value in the CTkEntry
+    elif selected_value == "Bore Hole":
+        entry_var.set(10000)  # Set the value in the CTkEntry
+    else:
+        entry_var.set("")  # Set the value in the CTkEntry
+# Save record fn
+def save_record(budgetheadcombo,amountentery,applytocombo):
+    global gplotid,gownerid,gindid,treeview
+    if budgetheadcombo.get() == "" or amountentery.get() == "":
+        messagebox.showerror("Error","All fileds are required")
+    elif applytocombo.get() == "All Industries":
+        db.updatebudget(budgetheadcombo,amountentery)
+        messagebox.showerror("Error","Apply to All")
+    elif applytocombo.get() == "Select from Above":
+        selected_item = treeview.selection()  # Get selected item
+        if selected_item:
+            db.updatebudgetforsingle(budgetheadcombo,amountentery,gplotid,gownerid,gindid)
+            messagebox.showerror("Error","Apply to Single")
+        else:
+            messagebox.showerror("Error","Select Record from tree first")
+    else:
+        messagebox.showerror("Error","Select Optioni")
+        
+
+# Select Data from tree
+def select_data(event):
+    global gownerid,gplotid,gindid,oldname,treeview,selected_item_global 
+    row = []
+    selected_item = treeview.selection()  # Get selected item
+    if selected_item:
+        selected_item_global = selected_item[0]  # Save the selection globally
+        row = treeview.item(selected_item_global, "values")
+        print(f"Selected: {row}")
+        print(row)
+        if row[7] is None:
+            gplotid = 0
+        else:
+            gplotid = row[7]
+        if row[8] == 'None':
+            gownerid = 0
+        else:
+            gownerid = row[8]
+        if row[9] == 'None':
+            gindid = 0
+        else:
+            gindid = row[9]
+    
+    else:
+        print("No row selected")
+        selected_item_global = None  # Clear the global if no row is selected
+    
+  
+    print(gplotid,gownerid,gindid)
+
+    update_paymentdata(gownerid,gplotid,gindid)
+    update_balancedata(gownerid,gplotid,gindid)
+    # Print the values of the clicked row
+
+#Search Record
+# Function to update payment tree
+def update_paymentdata(gownerid,gplotid,gindid):
+    global paytreeview,baltreeview,treeview
     cur, con = db.database_connect()
     cur.execute("use kpezdmc_version1")
-    recorcheck = f"SELECT budget_head_id FROM balance WHERE industry_id = {gindid} AND budget_head_id = (select budget_head_id from budget_heads where budget_head_name = 'Name Change');"
-    cur.execute(recorcheck)
-    result = cur.fetchone()
-    if result is None:
-         print("Not Found")
-         insert_query_balance = """INSERT INTO balance (balance_id,owner_id,plot_id,industry_id,budget_head_id,balance,update_at) 
-                                    VALUES (%s,%s,%s,%s,%s,%s,%s)"""
-        # Get plot id and owner id from tree
-        # Cureent Date
-         current_date = datetime.now()
-
-        # Format the current date
-         formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")  # Example format: 2024-09-03
-        # Data to be inserted
-         budgetheadid = 98
-         balance_id = db.get_balance_id("balance","balance_id")
-        # print(budgetheadid)
-         data = (balance_id,gownerid,gplotid,gindid,budgetheadid,50000,formatted_date)
-
-        # Execute the query
-         cur.execute(insert_query_balance, data)
-         con.commit()     
-    else:
-       print(f"Found {result[0]}")
-       namechange = 15000
-
-       update_balance = """
-                        UPDATE balance 
-                        SET balance = balance + %s 
-                        where industry_id = %s
-                        AND budget_head_id = %s;"""
-       data = (namechange,gindid,result[0])
-       cur.execute(update_balance,data)
-       print(update_balance)
-       con.commit()
-       #update_balancedata_if_name_changed(gownerid,gplotid,gindid)
+    query = f"select b.budget_head_name,p.amount,p.payment_date from payments p join budget_heads b on b.budget_head_id = p.budget_head_id where p.plot_id={gplotid} and p.owner_id={gownerid} or p.industry_id = {gindid} order by p.payment_date desc;"
+    cur.execute(query)
+    pay_record = cur.fetchall()
+    paytreeview.delete(*paytreeview.get_children())
+    for record in pay_record:
+        paytreeview.insert('',ct.END,values=record)
+        
 # Function to update Balance tree
 def update_balancedata(gownerid,gplotid,gindid):
+    global baltreeview,treeview,paytreeview
     cur, con = db.database_connect()
     cur.execute("use kpezdmc_version1")
     query = f"select b.budget_head_name,bb.balance,bb.update_at from balance bb join budget_heads b on b.budget_head_id = bb.budget_head_id where bb.plot_id={gplotid} and bb.owner_id={gownerid} or bb.industry_id = {gindid} order by bb.update_at desc;"
@@ -60,153 +99,9 @@ def update_balancedata(gownerid,gplotid,gindid):
     baltreeview.delete(*baltreeview.get_children())
     for record in bal_record:
         baltreeview.insert('',ct.END,values=record)
-#Update Nature
-def updated_nature(newnaturecombo):
-    if newnaturecombo.get() == "Select Nature":
-        messagebox.showerror("Error","Please First Select Nature")
-    else:
-        try:
-            cur, con = db.database_connect()
-            cur.execute("use kpezdmc_version1")
-            if gindid is None:
-                messagebox.showerror("Error","First select the Industry from above tree")
-            else:
-                # Update industries table
-                current_date = datetime.now()
-
-                # Format the current date
-                formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")
-                update_query = f"update industries set ind_nature = '{newnaturecombo.get()}', updated_at = '{formatted_date}' where id = {gindid};"
-                # Define the SQL query to insert data
-                print(update_query)
-                print(gplotid,gindid,gownerid)
-                # Show a confirmation dialog
-                answer = messagebox.askyesno("Confirm Update", "Are you sure you want to update the record?")
-                # If user clicks "Yes", close the window
-                if answer:
-                    # Execute the query
-                    cur.execute(update_query)
-                    con.commit()
-                    messagebox.showinfo("Success", "Record Updated Successfully!")
-              
-                #clear_fields(newnameentery)
-        except Error as e:
-                messagebox.showerror("Error",f"Database error : {e}")
-        finally:
-                if con.is_connected():
-                    cur.close()
-                    con.close()
-                    print("MySQL connection is closed")
-
-#Update Status
-def updated_status(newstatuscombo):
-    if newstatuscombo.get() == "Select Status":
-        messagebox.showerror("Error","Please First Select Status")
-    else:
-        try:
-            cur, con = db.database_connect()
-            cur.execute("use kpezdmc_version1")
-            if gindid is None:
-                messagebox.showerror("Error","First select the Industry from above tree")
-            else:
-                # Update industries table
-                current_date = datetime.now()
-
-                # Format the current date
-                formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")
-                update_query = f"update industries set ind_Status = '{newstatuscombo.get()}', updated_at = '{formatted_date}' where id = {gindid};"
-                # Define the SQL query to insert data
-                print(update_query)
-                print(gplotid,gindid,gownerid)
-                # Show a confirmation dialog
-                answer = messagebox.askyesno("Confirm Update", "Are you sure you want to update the record?")
-                # If user clicks "Yes", close the window
-                if answer:
-                    # Execute the query
-                    cur.execute(update_query)
-                    con.commit()
-                    messagebox.showinfo("Success", "Record Updated Successfully!")
-              
-                #clear_fields(newnameentery)
-                
-        except Error as e:
-                messagebox.showerror("Error",f"Database error : {e}")
-        finally:
-                if con.is_connected():
-                    cur.close()
-                    con.close()
-                    print("MySQL connection is closed")
-
-#Update Name
-def update_name(newnameentery):
-    if newnameentery.get() == "":
-        messagebox.showerror("Error","Please Enter The New Name")
-    else:
-        try:
-            cur, con = db.database_connect()
-            cur.execute("use kpezdmc_version1")
-            if gindid is None:
-                messagebox.showerror("Error","First select the Industry from above tree")
-            else:
-                # Update industries table
-                current_date = datetime.now()
-
-                # Format the current date
-                formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")
-                update_query = f"update industries set ind_name = '{newnameentery.get()}', updated_at = '{formatted_date}' where id = {gindid};"
-                # Define the SQL query to insert data
-                print(update_query)
-                print(gplotid,gindid,gownerid)
-                # Show a confirmation dialog
-                answer = messagebox.askyesno("Confirm Update", "Are you sure you want to update the record?")
-                # If user clicks "Yes", close the window
-                if answer:
-                    # Execute the query
-                    cur.execute(update_query)
-                    con.commit()
-                    messagebox.showinfo("Success", "Record Updated Successfully!")
-                    update_balancedata_if_name_changed(gownerid,gplotid,gindid)
-                #clear_fields(newnameentery)
-                
-        except Error as e:
-                messagebox.showerror("Error",f"Database error : {e}")
-        finally:
-                if con.is_connected():
-                    cur.close()
-                    con.close()
-                    print("MySQL connection is closed")
-
-        # End of entery to industry table
-
-# Select Data from tree
-def select_data(event):
-    global gownerid,gplotid,gindid
-    row = []
-    index = treeview.selection()
-    print(f"Index is {index}")
-    content = treeview.item(index)
-    row = content['values']
-    print(row)
-    if row[7] == 'None':
-        gplotid = 0
-    else:
-        gplotid = row[7]
-    if row[8] == 'None':
-        gownerid = 0
-    else:
-        gownerid = row[8]
-    if row[9] == 'None':
-        gindid = 0
-    else:
-        gindid = row[9]
-    print(gplotid,gownerid,gindid)
-
-    #update_balancedata_if_name_changed(gownerid,gplotid,gindid)
-    # Print the values of the clicked row
-
-#Search Record
 # Function for Search Record
 def search_record(searchcombo,searchentry):
+    global baltreeview,paytreeview,treeview
     cond=searchcombo.get()
     value=f"'%{searchentry.get()}%'"
     if value == '':
@@ -236,8 +131,8 @@ def search_record(searchcombo,searchentry):
         #plot_id,owner_id,indid=select_data()
         #print(plot_id,owner_id,indid)
 # Clear Fields
-def clear_fields(paymentgeadcombo,amountentery,dateentery):
-    paymentgeadcombo.set("Select Head")
+def clear_fields(budgetheadcombo,amountentery,dateentery):
+    budgetheadcombo.set("Select Head")
     amountentery.delete(0,ct.END)
     from datetime import date
     dateentery.set_date(date.today())
@@ -245,9 +140,10 @@ def clear_fields(paymentgeadcombo,amountentery,dateentery):
 
 # Display data in treeview 
 def treeview_data():
+    global baltreeview,paytreeview,treeview
     cur, con = db.database_connect()
     cur.execute("use kpezdmc_version1")
-    query = """select p.plot_number,p.zone,p.Area,o.ownname,i.ind_status,i.ind_name,i.ind_nature,p.id,o.id,i.id
+    query = """select p.plot_number,p.zone,p.Area,o.ownname,o.Mobile,i.ind_name,i.ind_nature,p.id,o.id,i.id
                 from plots p
                 join
                 plot_ownership po
@@ -269,22 +165,28 @@ def backend(app):
     gplotid = None
     gownerid = None
     gindid = None
-    global treeview,baltreeview,paytreeview,oldname,oldstatus,newstatus,newstatuscombo,oldnature
+    global treeview,baltreeview,paytreeview
     fontlable = ("Poppins",14)
     fontlmenu = ("Poppins",18,"bold")
     fontentry = ("Poppins",10,"bold")
     fontbtn = ("Arial",16,"bold")
-    operationframe = ct.CTkFrame(app,width=900,height=600,fg_color="#17202a")
-    operationframe.place(x=158,y=82)
-    backframe = ct.CTkFrame(operationframe,fg_color="#17202a")
+    indframe = ct.CTkFrame(app,width=900,height=600,fg_color="#17202a")
+    indframe.place(x=158,y=82)
+    backframe = ct.CTkFrame(indframe,fg_color="#17202a")
     backframe.place(x=0,y=0)
-    btnframe = ct.CTkFrame(operationframe,fg_color="#17202a")
+    paymentsframe = ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
+    paymentsframe.place(x=00,y=240)
+    balanceframe = ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
+    balanceframe.place(x=440,y=370)
+    btnframe = ct.CTkFrame(indframe,fg_color="#17202a")
     btnframe.place(x=40,y=5)
-    treeframe =ct.CTkFrame(operationframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
+    treeframe =ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
     treeframe.place(x=0,y=60)
+    sumaryframe =ct.CTkFrame(indframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
+    sumaryframe.place(x=0,y=370)
     photo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\back.png")
     homebtn = ct.CTkButton(backframe,image=photo_image,text="",font=fontbtn,width=30,hover_color="#1b4f72",fg_color="#17202a",bg_color="#17202a",
-                            height=20,cursor="hand2",command=lambda:operationframe.place_forget())
+                            height=20,cursor="hand2",command=lambda:indframe.place_forget())
     homebtn.place(x=0,y=0)
     # Tree Frame start
     plotdetaillable = ct.CTkLabel(treeframe,text="Plot / Industry Details",font=("Arial",14,"bold"),
@@ -310,10 +212,10 @@ def backend(app):
     style.map("Treeview",
             background=[('selected', '#2980b9')],  # Background color when row is selected
             foreground=[('selected', 'white')]) # Text color when row is selected
-    cols = ("Plot #","Zone","Area","Owner","Status","indname","nature","Plot ID","Owner ID","Indid")
+    cols = ("Plot #","Zone","Area","Owner","Mobile","indname","nature","Plot ID","Owner ID","Indid")
     vsb = ttk.Scrollbar(treeframe, orient="vertical")
-    h_scroll = ttk.Scrollbar(operationframe, orient="horizontal")
-    treeview = ttk.Treeview(treeframe,columns = cols, show="headings",height=8,
+    h_scroll = ttk.Scrollbar(indframe, orient="horizontal")
+    treeview = ttk.Treeview(treeframe,columns = cols, show="headings",height=5,
                             yscrollcommand=vsb.set,xscrollcommand=h_scroll.set)
 
     treeview.column("Plot #", width=50,stretch=False)
@@ -325,8 +227,8 @@ def backend(app):
     treeview.heading ('Area', text="Area",anchor="center")
     treeview.column("Owner", width=140,anchor="center",stretch=False)
     treeview.heading ('Owner', text='Owner Name')
-    treeview.column("Status", width=120,anchor="center",stretch=False)
-    treeview.heading ('Status', text="Status")
+    treeview.column("Mobile", width=120,anchor="center",stretch=False)
+    treeview.heading ('Mobile', text="Mobile #")
     treeview.column("indname", width=130,anchor="center",stretch=False)
     treeview.heading ('indname', text="Industry Name",anchor="center")
     treeview.column("nature", width=110,anchor="center",stretch=False)
@@ -353,12 +255,71 @@ def backend(app):
     treeview.bind('<<TreeviewSelect>>', lambda event: select_data(event='TreeviewSelect'))
     #db.database_connect()
 
-     #End of Tree Frame ###########################################
+
+    #End of Tree Frame ###########################################
+
+    # Start of industry frame
+    indinfolable = ct.CTkLabel(paymentsframe,text="Update Budget Head",font=("Arial",14,"bold"),
+                            text_color="#f8f9f9",bg_color="#808b96",width=850,height=20)
+    indinfolable.grid(row=0,column=0,columnspan=6,pady=(0,0))
     
- 
+
+    paymentheadlable = ct.CTkLabel(paymentsframe,text="Select Budget Head",font=fontlable,text_color="#f8f9f9")
+    paymentheadlable.grid(row=1,column=0,padx=(10,0),pady=12,sticky="w")
+    # code to get budget heads from table
+    pcur,pcon = db.database_connect()
+    # Query to get budget heads
+    query = "SELECT budget_head_name FROM budget_heads"  # Replace with your table and column names
+    pcur.execute(query) 
+    # Fetch all the results from the executed query
+    results = pcur.fetchall()
+    # Extract the budget heads from the results and return them as a list
+    budget_heads1 = [row[0] for row in results]
+    global budgetheadcombo
+    budgetheadcombo = ct.CTkComboBox(paymentsframe,font=fontentry,width=180,command=update_entry,
+                                values=budget_heads1,border_width=2,border_color="#17202a",
+                                fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
+    budgetheadcombo.grid(row=1,column=1)
+    global entry_var,applytocombo
+    amountlabel = ct.CTkLabel(paymentsframe,text="Charges",font=fontlable,text_color="#f8f9f9")
+    amountlabel.grid(row=1,column=2,padx=0,pady=12,sticky="w")
+    entry_var = tkinter.StringVar()
+    amountentery = ct.CTkEntry(paymentsframe,font=fontentry,width=180,textvariable=entry_var,
+                                placeholder_text="Amount in Rs.",border_width=2,border_color="#17202a",
+                                fg_color="#154360",text_color="White",placeholder_text_color="white")
+    amountentery.grid(row=1,column=3,padx=(0,0))
+    applytolable = ct.CTkLabel(paymentsframe,text="Choose the Industry",font=fontlable,text_color="#f8f9f9")
+    applytolable.grid(row=2,column=0,padx=(10,0),pady=12,sticky="w")
+    
+    applytocombo = ct.CTkComboBox(paymentsframe,font=fontentry,width=180,
+                                values=["Select Option","All Industries","Select from Above"],border_width=2,border_color="#17202a",
+                                fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
+    applytocombo.grid(row=2,column=1)
+
+    savebtn = ct.CTkButton(paymentsframe,text="Save Record",width=180,
+                           fg_color="#154360",corner_radius=5,border_width=2,border_color="#17202a",command=lambda:save_record(budgetheadcombo,amountentery,applytocombo))
+    savebtn.grid(row=2,column=3,padx=(0,0))
+
+    # End of Left Frame
+
     # Strat of button Frame
+    
+    """ savebtn = ct.CTkButton(btnframe,text="Save Record",width=150,
+                           fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",
+                           command=lambda:save_record(indnameentery,naturecombo,statuscombo,modecombo,areaentery,dateentery))
+    savebtn.grid(row=0,column=0,padx=(40,0))
+    updatebtn = ct.CTkButton(btnframe,text="Update Record",width=150,
+                           fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e")
+    updatebtn.grid(row=0,column=1,padx=(30,0))
+
+    showbtn = ct.CTkButton(btnframe,text="Show All",width=150,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",command=lambda:treeview_data())
+    showbtn.grid(row=0,column=2,padx=(30,0))
+
+    clearbtn = ct.CTkButton(btnframe,text="Show All",width=150,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",command=lambda:treeview_data())
+    clearbtn.grid(row=0,column=3,padx=(30,0))
+ """
     searchlable = ct.CTkLabel(btnframe,text="Search By :",text_color="white")
-    searchlable.grid(row=0,column=0,padx=(2,0),pady=15)
+    searchlable.grid(row=0,column=0,padx=(50,0),pady=15)
 
     searchcombo = ct.CTkComboBox(btnframe,font=fontentry,width=150,
                                 values=["Plot Number","Owner Name","Industry Name"],text_color="white",fg_color="#2c3e50",button_color="#707b7c",button_hover_color="#2471a3")
@@ -370,9 +331,57 @@ def backend(app):
 
     searchbtn = ct.CTkButton(btnframe,text="Search",fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#85929e",width=150,command=lambda:search_record(searchcombo,searchentry))
     searchbtn.grid(row=0,column=3,padx=(30,0),pady=15)
-    showallbtn = ct.CTkButton(btnframe,text="Show All",fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,
-                              border_width=2,border_color="#85929e",width=150,command=lambda:treeview_data())
-    showallbtn.grid(row=0,column=4,padx=(30,0),pady=15)
-    
+
+    # Payment Summary Tree Start
+    # Configure selected row colors
+    paymentlable = ct.CTkLabel(sumaryframe,text="Payments Summary",font=("Arial",14,"bold"),
+                            text_color="#f8f9f9",bg_color="#808b96",width=410,height=22)
+    paymentlable.pack(side=tkinter.TOP)
+    style.map("Treeview",
+            background=[('selected', '#2980b9')],  # Background color when row is selected
+            foreground=[('selected', 'white')]) # Text color when row is selected
+    cols = ("bhn","amount","Date")
+    vsb = ttk.Scrollbar(sumaryframe, orient="vertical")
+    paytreeview = ttk.Treeview(sumaryframe,columns = cols, show="headings",height=6)
+    paytreeview.pack(side=tkinter.LEFT,padx=(4,0),pady=(0,4))
+    paytreeview.column("bhn", width=170,stretch=False)
+    paytreeview.heading ('bhn', text='Payment Head',anchor="center")
+    paytreeview.column("amount", width=100,anchor="center",stretch=False)
+    paytreeview.heading ('amount', text='Amount')
+    paytreeview.column ('Date',anchor="center",stretch=False,width=120)
+    paytreeview.heading ('Date', text="Date",anchor="center")
     
 
+    paytreeview.configure(yscrollcommand=vsb.set)
+    # Add the horizontal scrollbar
+    vsb.config(command=paytreeview.yview)
+    # Pack the paytreeview and scrollbar
+    #h_scroll.pack(side=tkinter.BOTTOM, fill=tkinter.X)
+    vsb.pack(side=tkinter.RIGHT, fill=tkinter.Y,padx=(0,2),pady=(1,4))
+
+    # End of payment Tree
+
+    # Start of Balance Tree
+    balancelable = ct.CTkLabel(balanceframe,text="Balance Summary",font=("Arial",14,"bold"),
+                            text_color="#f8f9f9",bg_color="#808b96",width=410,height=22)
+    balancelable.pack(side=tkinter.TOP)
+    balcols = ("bhn","Balance","Date")
+    balvs = ttk.Scrollbar(balanceframe, orient="vertical")
+    baltreeview = ttk.Treeview(balanceframe,columns = balcols, show="headings",height=6)
+    baltreeview.pack(side=tkinter.LEFT,padx=(4,0),pady=(0,4))
+    baltreeview.column("bhn", width=170,stretch=False)
+    baltreeview.heading ('bhn', text='Payment Head',anchor="center")
+    baltreeview.column("Balance", width=90,anchor="center",stretch=False)
+    baltreeview.heading ('Balance', text='Balance')
+    baltreeview.column ('Date',anchor="center",stretch=False,width=120)
+    baltreeview.heading ('Date', text="Date",anchor="center")
+    
+
+    baltreeview.configure(yscrollcommand=balvs.set)
+    # Add the horizontal scrollbar
+    balvs.config(command=baltreeview.yview)
+    # Pack the baltreeview and scrollbar
+    #h_scroll.pack(side=tkinter.BOTTOM, fill=tkinter.X)
+    balvs.pack(side=tkinter.RIGHT, fill=tkinter.Y,padx=(0,4),pady=(0,4))
+   
+   
