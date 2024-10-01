@@ -156,7 +156,8 @@ def dashboard(dashboard):
                     """
     cur.execute(queryforpayment)
     fetchamount = cur.fetchone()
-    amounttext = f"-  Land Price : {fetchamount[0]/1000000} M"
+    if fetchamount[0]:
+        amounttext = f"-  Land Price : {float(fetchamount[0])/1000000} M"
     amountlable = ct.CTkLabel(paymentdetailsframe,text=amounttext,text_color="white",font=("Arial",14))
     amountlable.place(x=25,y=200)
     #end of Land Price

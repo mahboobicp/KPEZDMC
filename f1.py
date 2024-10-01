@@ -3,11 +3,12 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Image
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 import matplotlib.pyplot as plt
 import mysql.connector
 from datetime import datetime
 import database as db
+from reportlab.lib.pagesizes import A4, letter
 
 # Function to fetch data from MySQL database
 def fetch_data(industry_id):
@@ -61,21 +62,27 @@ def create_bar_chart(data):
 
 # Function to generate PDF invoice notification
 def generate_pdf():
-    data,bal_due = fetch_data(110)
+    data,bal_due = fetch_data(112)
     if not data:
         print("No data found.")
         return
 
     # Create the PDF
     pdf_filename = 'industry_invoice.pdf'
-    doc = SimpleDocTemplate(pdf_filename, pagesize=letter)
-    
+    doc = SimpleDocTemplate(pdf_filename, pagesize=A4)
+    left_margin = 1 * inch
+    top_margin = 0 * inch
+    right_margin = 1 * inch
+    bottom_margin = 1 * inch
+    doc.topMargin = top_margin
+    doc.leftMargin = left_margin
+    doc.rightMargin = right_margin
     # Create a list for the PDF elements
     elements = []
 
     # Add company logo
     logo = Image('D:\Python\KPEZDMC\images\comlogo.png')
-    logo.width = 2.5 * inch
+    logo.width = 1 * inch
     logo.height = 1 * inch
     elements.append(logo)
 
@@ -84,23 +91,38 @@ def generate_pdf():
     styles['Normal'].fontSize = 12  # Set font size to 12
     right_aligned_style = styles['Normal'].clone('RightAligned')
     right_aligned_style.alignment = 2  # 0=left, 1=center, 2=right
+    # Define a custom paragraph style
+    custom_style = ParagraphStyle(
+    name="CustomStyle",
+    fontName="Helvetica",  # Change the font (e.g., Helvetica, Times-Roman, Courier)
+    fontSize=12,  # Font size
+    leading=16,  # Line spacing (leading is space between lines)
+    spaceAfter=12,  # Space after the paragraph
+    )
+    right_aligned_style = ParagraphStyle(
+    name='RightAligned',
+    fontSize=12,
+    alignment=2,  # 0: LEFT, 1: CENTER, 2: RIGHT
+    )
     # Add Industry and Owner Name
     industry_name, owner_name,pltn,pltarea = data[0], data[1],data[2],data[3]  # Unpacking first row (assuming single industry)
     #elements.append(Paragraph(f'<b><br/>Industry :</b> {industry_name}', styles['Normal']))
     # Add industry Name and Date
     date_string = f'Date: {datetime.now().strftime("%d-%m-%Y")}'
-    plotnum = f'Plot No. {pltn} Area : {pltarea}'
+    plotnum = f'<b>Plot No :</b> {pltn} Area : {pltarea}'
     print(plotnum)
     ######################################3
     # Prepare the table data
     data = [
-        [Paragraph(f'Industry Name: {industry_name}', styles['Normal']), Paragraph(f'  {date_string}', styles['Normal'])],
-        [Paragraph(f'Owner Name: {owner_name}', styles['Normal']), ''],  # Empty cell for alignment
+        [Paragraph(f'<b>No. (IEM/NSR) ________</b>', styles['Normal']), Paragraph(f'  {date_string}', styles['Normal'])],
+        [],
+        [Paragraph(f'<b>Industry Name:</b> {industry_name}', styles['Normal']), ''],
+        [Paragraph(f'<b>Owner Name:</b> {owner_name}', styles['Normal']), ''],  # Empty cell for alignment
         [Paragraph(f'{plotnum}', styles['Normal']), ''],
     ]
 
     # Create a Table
-    header_table = Table(data, colWidths=[320, 150])  # Adjust widths as necessary
+    header_table = Table(data, colWidths=[300, 150])  # Adjust widths as necessary
     header_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 10), colors.white),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
@@ -109,6 +131,12 @@ def generate_pdf():
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
         ('GRID', (0, 0), (-1, -1), 1, colors.white),
+          # Control cell padding for all cells (LEFT, RIGHT, TOP, BOTTOM)
+       ('PADDING', (0, 1), (-1, -1), 1),  # Decrease cell padding for rows
+       ('BOTTOMPADDING', (0, 1), (-1, -1), 2),  # Decrease bottom padding for rows
+       ('TOPPADDING', (0, 1), (-1, -1), 2),  # Decrease top padding for rows
+
+        # Control space before and after the table (to other eleme                  # Space after the table
     ]))
 
     # Create the PDF elements list
@@ -122,10 +150,10 @@ def generate_pdf():
     elements.append(Paragraph('<br/><br/>', styles['Normal']))  # Add space after subject line
 
     # Add Greeting and Request Paragraph
-    greeting_message = 'Dear Sir/Madam,<br/><br/>The under mentioned amount/charges are Outstanding dues aganist your unit as per the following break up.<br/><br/>'
-    elements.append(Paragraph(greeting_message, styles['Normal']))
+    greeting_message = 'Dear Sir/Madam,<br/><br/>The under mentioned amount/charges are Outstanding dues aganist your unit as per the following break up.<br/>'
+    elements.append(Paragraph(greeting_message, custom_style))
     elements.append(Paragraph('<br/>', styles['Normal']))  # Add space before the table
-
+    
     # Prepare Balance Details Table
     zonebalance_details = [['Zone Budget Head', 'Balance (Amount)']]  # Header row
     zfcbalance_details = [['ZFC Budget Head', 'Balance (Amount)']]  # Header row
@@ -134,18 +162,19 @@ def generate_pdf():
     for row in bal_due:
         budget_head = row[0]
         balance = float(row[1])
-        if row[0] =='Maintenance' or budget_head =="ZFC Maintenance":
+        if ((row[0] !='ZFC Surcharge') and (row[0] !='ZFC Maintenance')):
             totalzone=totalzone+balance
             print(budget_head)
             zonebalance_details.append([budget_head, f'{balance:,.2f}'])
-        elif budget_head is "ZFC Surcharge" or budget_head is "ZFC Maintenance":
-            totalzfc += balance
+        else:   
+            totalzfc =totalzfc + balance
             zfcbalance_details.append([budget_head, f'{balance:,.2f}'])
             print(budget_head)
-    zonebalance_details.append(['Grand Total',totalzone])  
-    print(f"ZMC : {totalzfc} and Zone : {totalzone}")
+    zonebalance_details.append(['Grand Total',totalzone])
+    zfcbalance_details.append(['Grand Total', totalzfc])  
+    print(f"ZFC : {totalzfc} and Zone : {totalzone}")
     # Create Table for Balance Details
-    zonetable = Table(zonebalance_details,colWidths=[110, 90])
+    zonetable = Table(zonebalance_details,colWidths=[120, 100])
     zonetable.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
@@ -156,11 +185,11 @@ def generate_pdf():
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
     ]))
     
-    elements.append(zonetable)
+    #elements.append(zonetable)
     # End of Zone Table 
     #Start of ZFC Table 
       # Create Table for Balance Details
-    zfctable = Table(zfcbalance_details,colWidths=[110, 90])
+    zfctable = Table(zfcbalance_details,colWidths=[120, 100])
     zfctable.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
@@ -171,8 +200,38 @@ def generate_pdf():
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
     ]))
     
-    elements.append(zfctable)
+    #elements.append(zfctable)
+    paragraph = Paragraph(
+    "<font size='8'><b>Bank : The Bank of Khyber (BOK)</b><br/></font>"
+    "<font size='8'><b>AC No :</b> 2008826668<br/></font>"
+    "<font size='8'><b> Title :</b>Khyber Pakhtunkhwa Economic Zone Development and Managment Company-Non Checking</font><br/> "
+    "<font size='8'><b> Branch :</b>Nowshera Economic Zone Branch (0320)</font><br/>"
+    "<font size='8'><b>Submit Zone Dues in Above Title!</b></font><br/><br/><br/>",
+    styles['Normal']
+    )
+    paragraph2 = Paragraph(
+    "<font size='8'><b>Bank : The Bank of Khyber (BOK)</b><br/></font>"
+    "<font size='8'><b>AC No :</b> 2007908795<br/></font>"
+    "<font size='8'><b> Title :</b>Zone Facilitation Committee NEZ</font><br/> "
+    "<font size='8'><b> Branch :</b>Nowshera Economic Zone Branch (0320)</font><br/>"
+    "<font size='8'><b>Submit ZFC Dues in Above Title!</b></font><br/><br/>",
+    styles['Normal']
+    )
+    # Main Table
+    main_table_data = [
+        [[zonetable,zfctable], [paragraph,paragraph2]],  # First row with sub-tables in left column and paragraph in right column
+    ]
+    
+    # Define the main table and its style
+    main_table = Table(main_table_data, colWidths=[3.5 * inch, 2.5 * inch])  # Adjust column widths to fit page layout
 
+    main_table.setStyle(TableStyle([
+    ('GRID', (0, 0), (-1, -1), 1, colors.white),
+    ('ALIGN', (0, 0), (0, 0), 'CENTER'),  # Center the left column (containing sub-tables)
+    ('ALIGN', (1, 0), (1, 0), 'CENTER'),  # Center the right column (containing paragraph)
+    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Center vertically within the row
+    ]))
+    elements.append(main_table)
     """ # Insert Bar Chart Image
     create_bar_chart(bal_due)
     bar_chart_image = Image('bar_chart.png')
@@ -182,15 +241,16 @@ def generate_pdf():
 
     # Closing Message with Bank Details
     closing_message = (
-        '<br/>We kindly request you to submit the balance dues at your earliest convenience. '
-        'The payment can be made to the following account:<br/><br/>'
-        'Account Name: Industry Payment Services<br/>'
-        'Account Number: 123456789<br/>'
-        'Bank: National Bank<br/>'
-        'Branch Code: 00112233'
+        '<br/><b>You are advised to deposit :</b><br/>'
+        'KPEZDMC Charges in the Bank of Khyber, Nowshera Economic Zone Branch (0320) in Account # 2008826668 Titled : Khyber Pakhtunkhwa Economic Zone Development and Managment Company-Non Checking<br/>'
+        '<b>whereas</b><br/>'
+        'Zone Facilitation Committee (ZFC) charges in the bank of Khyber, Nowshera Economic Zone Branch (0320) in Account # 2007908795 Titled : Zone Facilitation Committee NEZ, at your earliest'
+        '<br/><br/>'
+        'KPEZDMC aims to develop and manage world class industerial estates to help organize and establish planned and rapid industrialization in Khyber Pakhtunkhwa'
+        '<br/><br/> Thanking you in anticiption.'
     )
-    elements.append(Paragraph(closing_message, styles['Normal']))
-
+    elements.append(Paragraph(closing_message,custom_style))
+    elements.append(Paragraph('Accounts Officer NEZ',right_aligned_style))
     # Build the PDF
     doc.build(elements)
     print(f"PDF generated successfully: {pdf_filename}")

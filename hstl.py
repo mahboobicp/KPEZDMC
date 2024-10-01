@@ -1,25 +1,34 @@
-import customtkinter as ctk
-from tkinter import StringVar
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
-# Create the root window using CTk
-root = ctk.CTk()
-root.geometry("400x200")
-root.title("Set CTkEntry based on ComboBox")
+# Create a PDF document
+pdf = SimpleDocTemplate("table_with_empty_row.pdf", pagesize=A4)
 
-# Define a function to update the CTkEntry based on ComboBox selection
-def update_entry(selected_value):
-    entry_var.set(f"Selected: {selected_value}")  # Set the value in the CTkEntry
+# Sample data for the table
+data = [
+    ["Header 1", "Header 2"],
+    ["Row 1 Col 1", "Row 1 Col 2"],
+    ["Row 2 Col 1", "Row 2 Col 2"],
+    [],  # This is the empty row
+    ["Row 3 Col 1", "Row 3 Col 2"],
+]
 
-# Create a CTkComboBox with some values and use the `command` to trigger the function
-combobox = ctk.CTkComboBox(root, values=["Option 1", "Option 2", "Option 3"], command=update_entry)
-combobox.pack(pady=20)
+# Create a table with the data
+table = Table(data)
 
-# Create a textvariable for the CTkEntry
-entry_var = StringVar()
+# Define a table style
+table.setStyle(TableStyle([
+    ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  # Header background color
+    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Header text color
+    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center align all cells
+    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font
+    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Padding for header
+    ('TOPPADDING', (0, 0), (-1, 0), 12),  # Padding for header
+    ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Grid lines
+]))
 
-# Create a CTkEntry and link it to the textvariable
-entry = ctk.CTkEntry(root, textvariable=entry_var)
-entry.pack(pady=20)
+# Build the PDF with the table
+pdf.build([table])
 
-# Start the main loop
-root.mainloop()
+print("PDF created successfully.")
