@@ -9,6 +9,20 @@ import mysql.connector
 from datetime import datetime
 import database as db
 from reportlab.lib.pagesizes import A4, letter
+def add_footer(canvas, doc):
+    # Path to the image file
+    image_path = r"D:\Python\KPEZDMC\images\footer.png"
+    
+    # Position the image at the bottom left (adjust values for positioning)
+    image_width = 7 * inch  # Image width (in inches)
+    image_height = 0.5 * inch  # Image height (in inches)
+    
+    # X and Y positions for the image
+    x_position = 0.5 * inch  # Left margin
+    y_position = 0.5 * inch  # Footer height from bottom of the page
+    
+    # Draw the image on the canvas
+    canvas.drawImage(image_path, x_position, y_position, width=image_width, height=image_height)
 # Function to generate industry Statement
 def fetch_statement(industry_id):
     cursor, con = db.database_connect()
@@ -259,7 +273,7 @@ def generate_pdf(indid):
     elements.append(Paragraph(closing_message,custom_style))
     elements.append(Paragraph('Accounts Officer NEZ',right_aligned_style))
     # Build the PDF
-    doc.build(elements)
+    doc.build(elements,onFirstPage=add_footer, onLaterPages=add_footer)
     print(f"PDF generated successfully: {pdf_filename}")
 
 # Geneerate pdf for statement

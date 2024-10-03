@@ -9,7 +9,21 @@ import mysql.connector
 from datetime import datetime
 import database as db
 from reportlab.lib.pagesizes import A4, letter
+def add_footer(canvas, doc):
+    # Path to the image file
+    image_path = r"D:\Python\KPEZDMC\images\footer.png"
     
+    # Position the image at the bottom left (adjust values for positioning)
+    image_width = 7 * inch  # Image width (in inches)
+    image_height = 0.5 * inch  # Image height (in inches)
+    
+    # X and Y positions for the image
+    x_position = 0.5 * inch  # Left margin
+    y_position = 0.5 * inch  # Footer height from bottom of the page
+    
+    # Draw the image on the canvas
+    canvas.drawImage(image_path, x_position, y_position, width=image_width, height=image_height)
+
 # Function to fetch data from MySQL database
 def fetch_data(industry_id):
     cursor, con = db.database_connect()
@@ -260,5 +274,5 @@ def main_code():
         flowables.extend(page_content)  # Add the generated page content
     
     # Build the PDF with the list of flowables (pages and page breaks)
-    doc.build(flowables)
+    doc.build(flowables,onFirstPage=add_footer, onLaterPages=add_footer)
 
