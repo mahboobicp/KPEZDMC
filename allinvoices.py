@@ -9,27 +9,6 @@ import mysql.connector
 from datetime import datetime
 import database as db
 from reportlab.lib.pagesizes import A4, letter
-# Function to generate industry Statement
-def fetch_statement(industry_id):
-    cursor, con = db.database_connect()
-    cursor.execute("use kpezdmc_version1")
-         # Query to get industry statement 
-    cursor.execute("""
-    select 
-	b.budget_head_name,
-    ba.opening_balance,
-    ba.closing_balance-ba.opening_balance as paid,
-    ba.closing_balance,
-    ba.update_time
-    from audit_balance ba
-    join budget_heads b
-    on ba.budget_head_id = b.budget_head_id
-    where ba.industry_id=%s
-    order by b.budget_head_name;
-    """, (industry_id,))
-    indstatement = cursor.fetchall()
-    cursor.close()
-    return indstatement
     
 # Function to fetch data from MySQL database
 def fetch_data(industry_id):
@@ -69,13 +48,14 @@ def fetch_data(industry_id):
 
 # Function to generate PDF invoice notification
 def generate_pdf(indid):
+    global doc
     data,bal_due = fetch_data(indid)
     if not data:
         print("No data found.")
         return
 
     # Create the PDF
-    pdf_filename = 'industry_invoice.pdf'
+    pdf_filename = 'all_industries_invoice.pdf'
     doc = SimpleDocTemplate(pdf_filename, pagesize=A4)
     left_margin = 1 * inch
     top_margin = 0 * inch
@@ -259,122 +239,26 @@ def generate_pdf(indid):
     elements.append(Paragraph(closing_message,custom_style))
     elements.append(Paragraph('Accounts Officer NEZ',right_aligned_style))
     # Build the PDF
-    doc.build(elements)
+    return elements
     print(f"PDF generated successfully: {pdf_filename}")
 
-# Geneerate pdf for statement
-def generate_pdf_statement(indid):
-    data,bal_due = fetch_data(indid)
-    if not data:
-        print("No data found.")
-        return
+# code to call all industries
 
-    # Create the PDF
-    pdf_filename = 'industry_statement.pdf'
-    doc = SimpleDocTemplate(pdf_filename, pagesize=A4)
-    left_margin = 1 * inch
-    top_margin = 0 * inch
-    right_margin = 1 * inch
-    bottom_margin = 1 * inch
-    doc.topMargin = top_margin
-    doc.leftMargin = left_margin
-    doc.rightMargin = right_margin
-    # Create a list for the PDF elements
-    elements = []
+def main_code():
+    global doc,elements
+    flowables =[]
+    cursor, con = db.database_connect()
+    cursor.execute("use kpezdmc_version1")
+    cursor.execute("select id from industries;")
+    industry_details = cursor.fetchall()
+    flowables = []
 
-    # Add company logo
-    logo = Image('D:\Python\KPEZDMC\images\comlogo.png')
-    logo.width = 1 * inch
-    logo.height = 1 * inch
-    elements.append(logo)
-
-    # Prepare styles
-    styles = getSampleStyleSheet()
-    styles['Normal'].fontSize = 12  # Set font size to 12
-    right_aligned_style = styles['Normal'].clone('RightAligned')
-    right_aligned_style.alignment = 2  # 0=left, 1=center, 2=right
-    # Define a custom paragraph style
-    custom_style = ParagraphStyle(
-    name="CustomStyle",
-    fontName="Helvetica",  # Change the font (e.g., Helvetica, Times-Roman, Courier)
-    fontSize=12,  # Font size
-    leading=16,  # Line spacing (leading is space between lines)
-    spaceAfter=12,  # Space after the paragraph
-    )
-    right_aligned_style = ParagraphStyle(
-    name='RightAligned',
-    fontSize=12,
-    alignment=2,  # 0: LEFT, 1: CENTER, 2: RIGHT
-    )
-    # Add Industry and Owner Name
-    industry_name, owner_name,pltn,pltarea = data[0], data[1],data[2],data[3]  # Unpacking first row (assuming single industry)
-    #elements.append(Paragraph(f'<b><br/>Industry :</b> {industry_name}', styles['Normal']))
-    # Add industry Name and Date
-    date_string = f'Date: {datetime.now().strftime("%d-%m-%Y")}'
-    plotnum = f'<b>Plot No :</b> {pltn} Area : {pltarea}'
-    print(plotnum)
-    ######################################3
-    # Prepare the table data
-    data = [
-        [Paragraph(f'<b>No. (IEM/NSR) ________</b>', styles['Normal']), Paragraph(f'  {date_string}', styles['Normal'])],
-        [],
-        [Paragraph(f'<b>Industry Name:</b> {industry_name}', styles['Normal']), ''],
-        [Paragraph(f'<b>Owner Name:</b> {owner_name}', styles['Normal']), ''],  # Empty cell for alignment
-        [Paragraph(f'{plotnum}', styles['Normal']), ''],
-    ]
-
-    # Create a Table
-    header_table = Table(data, colWidths=[300, 150])  # Adjust widths as necessary
-    header_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 10), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-        ('ALIGN', (0, 0), (0, -1), 'LEFT'),  # Align left for industry and owner
-        ('ALIGN', (1, 0), (1, -1), 'CENTER'),  # Align right for date
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('GRID', (0, 0), (-1, -1), 1, colors.white),
-          # Control cell padding for all cells (LEFT, RIGHT, TOP, BOTTOM)
-       ('PADDING', (0, 1), (-1, -1), 1),  # Decrease cell padding for rows
-       ('BOTTOMPADDING', (0, 1), (-1, -1), 2),  # Decrease bottom padding for rows
-       ('TOPPADDING', (0, 1), (-1, -1), 2),  # Decrease top padding for rows
-
-        # Control space before and after the table (to other eleme                  # Space after the table
-    ]))
-
-    # Create the PDF elements list
-    #elements.append("<br/>")
-    elements.append(header_table)
-    #########################################################
+    # Simulate calling the page content generator function multiple times
+    for i in industry_details:  # Example: Generate 3 pages
+        print(i[0])
+        page_content = generate_pdf(i[0])
+        flowables.extend(page_content)  # Add the generated page content
     
-    
-    # Add Subject Line
-    elements.append(Paragraph('<b><br/>INDUSTRY PAYEMENTS REPORT</b>', styles['Normal']))
-    elements.append(Paragraph('<br/><br/>', styles['Normal']))  # Add space after subject line
-
-    # Add Greeting and Request Paragraph
-    greeting_message = 'Dear Sir/Madam,<br/><br/>We hope this message finds you well. Below is the detailed summary of your current account balance and associated budget heads. Please review the information carefully.<br/>'
-    elements.append(Paragraph(greeting_message, custom_style))
-    elements.append(Paragraph('<br/>', styles['Normal']))  # Add space before the table
-    records = fetch_statement(indid)
-    # Prepare Statement Details Table
-    statementdetail = [['Budget Head', 'Opening Balance','Paid Amount','Closing Balance','Date']]  # Header row
-    for record in records:
-        statementdetail.append([record[0],record[1],record[2],record[3],record[4]])
-         
-   
-    # Create Table for Balance Details
-    statementtable = Table(statementdetail,colWidths=[80,100,80,80,100])
-    statementtable.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ]))
-    elements.append(statementtable)
-    doc.build(elements)
-    print(f"PDF generated successfully: {pdf_filename}")
-
+    # Build the PDF with the list of flowables (pages and page breaks)
+    doc.build(flowables)
 

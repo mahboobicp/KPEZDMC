@@ -9,6 +9,7 @@ import dashboard as dash
 from operations import operations
 import database as db
 from backend import backend
+from reports import reports
 from tkinter import messagebox
 def close_app():
     # Show a confirmation dialog
@@ -80,7 +81,8 @@ paymentbtn = ct.CTkButton(menuframe,image=payment_image,border_width=2,fg_color=
                           font=fontbtn,width=150,cursor="hand2",height=40,command=lambda:payments(app))
 paymentbtn.pack(pady=2)
 reportbtn = ct.CTkButton(menuframe,image=report_image,border_width=2,fg_color="#013d42",hover_color="#04747e",
-                       bg_color="#212f3c",border_color="#04747e",text="Reports",font=fontbtn,width=150,height=40,cursor="hand2")
+                       bg_color="#212f3c",border_color="#04747e",text="Reports",
+                       font=fontbtn,width=150,height=40,cursor="hand2",command=lambda:reports(app))
 reportbtn.pack(padx=1,pady=2)
 Transferbtn = ct.CTkButton(menuframe,image=transfer_image,border_width=2,fg_color="#013d42",hover_color="#04747e",
                        bg_color="#212f3c",border_color="#04747e",text="Transfer",font=fontbtn,width=150,height=40,cursor="hand2")
