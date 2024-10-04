@@ -1,5 +1,6 @@
 import customtkinter as ct
 import tkinter 
+from PIL import Image
 from tkinter import messagebox
 from tkinter import ttk
 from tkcalendar import DateEntry
@@ -378,4 +379,15 @@ def updatebudgetforsingle(head,amount,gplotid,gownerid,gindid):
     # Close the cursor and connection
     cursor.close()
     connection.close()
+
+
+# image read function
+def image_read(path):
+    open_image = Image.open(path)
+    image = ct.CTkImage(open_image)
+    return image
+def image_read_logo(path):
+    open_image = Image.open(path)
+    image = ct.CTkImage(open_image,size=(70,70))
+    return image
     

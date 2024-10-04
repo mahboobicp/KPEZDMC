@@ -62,13 +62,15 @@ def dashboard(dashboard):
     otherplot = f"Other Entity Plots : {othplot[0]}"
     otherplots = ct.CTkLabel(plotdetailsframe,text=otherplot,text_color="white",font=fnt)
     otherplots.place(x=30,y=200)
-    plot_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\plotting.png")
+    plot_image = db.image_read_logo(r"D:\Python\KPEZDMC\images\plotting.png")
+    #tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\plotting.png")
     plotinfo = ct.CTkLabel(plotdetailsframe,image=plot_image,text="")
     plotinfo.pack()
     plottext = ct.CTkLabel(plotdetailsframe,text="Plots Detail",font=fontdash,text_color="white")
     plottext.pack(padx=35,pady=(0,160))
     
-    ind_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\factory.png")
+    ind_image = db.image_read_logo(r"D:\Python\KPEZDMC\images\factory.png")
+    #tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\factory.png")
     indinfo = ct.CTkLabel(industrydetailsframe,image=ind_image,text="")
     indinfo.pack()
     indtext = ct.CTkLabel(industrydetailsframe,text="Industries Info",font=fontdash,text_color="white")
@@ -98,12 +100,14 @@ def dashboard(dashboard):
     closelbl.place(x=65,y=200)
     # Start of Paymnets details 
     
-    pay_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\payment.png")
+    pay_image = db.image_read_logo(r"D:\Python\KPEZDMC\images\payment.png")
+    #tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\payment.png")
     payinfo = ct.CTkLabel(paymentdetailsframe,image=pay_image,text="")
     payinfo.pack()
     paytext = ct.CTkLabel(paymentdetailsframe,text="Payment Info",font=fontdash,text_color="white")
     paytext.pack(padx=30,pady=(0,160))
-    cash_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\money.png")
+    cash_image = db.image_read_logo(r"D:\Python\KPEZDMC\images\money.png")
+    #tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\money.png")
     # Start of Bore Hole
     queryforpayment = """
                     SELECT SUM(amount) 
@@ -167,7 +171,8 @@ def dashboard(dashboard):
     recivablestext.place(x=60,y=102)
     
     # Start of Summary widget
-    sum_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\summary.png")
+    sum_image = db.image_read_logo(r"D:\Python\KPEZDMC\images\summary.png")
+    #tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\summary.png")
     suminfo = ct.CTkLabel(otherdetailsframe,image=sum_image,text="")
     suminfo.pack()
     sumtext = ct.CTkLabel(otherdetailsframe,text="Summary",font=fontdash,text_color="white")
@@ -196,7 +201,8 @@ def dashboard(dashboard):
     linelabe.pack(pady=(0,10))
     #End Summary calculation
     
-    logs_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\cloud.png")
+    logs_image = db.image_read_logo(r"D:\Python\KPEZDMC\images\cloud.png")
+    #tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\cloud.png")
     logsinfo = ct.CTkLabel(eventsframe,image=logs_image,text="")
     logsinfo.pack()
     logstext = ct.CTkLabel(eventsframe,text="Recent Activities",font=fontdash,text_color="white")
