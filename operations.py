@@ -310,7 +310,8 @@ def operations(app):
     tabsframe.place(x=5,y=320)
     balanceframe = ct.CTkFrame(operationframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
     balanceframe.place(x=430,y=320)
-    photo_image = tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\back.png")
+    photo_image = db.image_read(r"D:\Python\KPEZDMC\images\back.png")
+    #tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\back.png")
     homebtn = ct.CTkButton(backframe,image=photo_image,text="",font=fontbtn,width=30,hover_color="#1b4f72",fg_color="#17202a",bg_color="#17202a",
                             height=20,cursor="hand2",command=lambda:operationframe.place_forget())
     homebtn.place(x=0,y=0)

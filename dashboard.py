@@ -106,7 +106,7 @@ def dashboard(dashboard):
     payinfo.pack()
     paytext = ct.CTkLabel(paymentdetailsframe,text="Payment Info",font=fontdash,text_color="white")
     paytext.pack(padx=30,pady=(0,160))
-    cash_image = db.image_read_logo(r"D:\Python\KPEZDMC\images\money.png")
+    cash_image = db.image_read(r"D:\Python\KPEZDMC\images\money.png")
     #tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\money.png")
     # Start of Bore Hole
     queryforpayment = """
