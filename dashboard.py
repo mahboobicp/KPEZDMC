@@ -122,7 +122,7 @@ def dashboard(dashboard):
     queryforpayment = """
                     SELECT SUM(amount) 
                     FROM payments
-                    WHERE budget_head_id = (SELECT budget_head_id FROM budget_heads WHERE budget_head_name = 'Maintanance')
+                    WHERE budget_head_id = (SELECT budget_head_id FROM budget_heads WHERE budget_head_name = 'Maintenance')
                     AND MONTH(payment_date) = MONTH(CURRENT_DATE())
                     AND YEAR(payment_date) = YEAR(CURRENT_DATE());
                     """
