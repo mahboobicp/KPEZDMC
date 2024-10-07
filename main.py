@@ -11,6 +11,7 @@ from operations import operations
 import database as db
 from backend import backend
 from reports import reports
+from transfer import transfer
 from tkinter import messagebox
 def image_read(path):
     open_image = Image.open(path)
@@ -44,6 +45,7 @@ def payments_button(app,paymentbtn):
     payments(app)
     button_click(paymentbtn)
 def transfer_button(app,Transferbtn):
+    transfer(app)
     button_click(Transferbtn)
 def reports_button(app,reportbtn):
     reports(app)
