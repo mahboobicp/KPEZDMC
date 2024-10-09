@@ -110,7 +110,7 @@ def update_balancedata_if_nature_changed(ownerid,plotid,indid):
     cur.execute("use kpezdmc_version1")
     budgetid = get_budget_head("Nature Change")
     print(f"Return ID {budgetid}")
-    recorcheck = f"select balance_id from balance where owner_id = {ownerid} and plot_id = {plotid} and industry_id = {indid} and budget_head_id = {budgetid};"
+    recorcheck = f"select balance_id from balance where industry_id = {indid} and budget_head_id = {budgetid};"
     cur.execute(recorcheck)
     result = cur.fetchone()
     print(f"Balance id {result}")
@@ -152,7 +152,7 @@ def update_balancedata_if_name_changed(ownerid,plotid,indid):
     cur.execute("use kpezdmc_version1")
     budgetid = get_budget_head("Name Change")
     print(f"Return ID {budgetid}")
-    recorcheck = f"select balance_id from balance where owner_id = {ownerid} and plot_id = {plotid} and industry_id = {indid} and budget_head_id = {budgetid};"
+    recorcheck = f"select balance_id from balance where industry_id = {indid} and budget_head_id = {budgetid};"
     cur.execute(recorcheck)
     result = cur.fetchone()
     print(f"Balance id {result}")
@@ -258,7 +258,7 @@ def updatebudget(head,amount):
         # Check if the industry already has a balance entry for the specified budget head
         if industryid is None:
             industryid = 0
-        balance = f"SELECT balance_id, balance FROM balance WHERE ((owner_id = {ownerid} and plot_id = {plotid}) or (industry_id = {industryid})) AND budget_head_id = {budget_head_id};"
+        balance = f"SELECT balance_id, balance FROM balance WHERE industry_id = {industryid} AND budget_head_id = {budget_head_id};"
         cursor.execute(balance)
     
         existing_balance = cursor.fetchone()
@@ -339,7 +339,7 @@ def updatebudgetforsingle(head,amount,gplotid,gownerid,gindid):
     coverd_area,ownername,industryname,plotid,ownerid,industryid = industries
     #print(industry)
     # Check if the industry already has a balance entry for the specified budget head
-    balance = f"SELECT balance_id, balance FROM balance WHERE ((owner_id = {ownerid} and plot_id = {plotid}) or (industry_id = {industryid})) AND budget_head_id = {budget_head_id};"
+    balance = f"SELECT balance_id, balance FROM balance WHERE industry_id = {industryid} AND budget_head_id = {budget_head_id};"
     cursor.execute(balance)
 
     existing_balance = cursor.fetchone()

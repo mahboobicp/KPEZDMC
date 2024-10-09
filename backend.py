@@ -81,7 +81,7 @@ def update_paymentdata(gownerid,gplotid,gindid):
     global paytreeview,baltreeview,treeview
     cur, con = db.database_connect()
     cur.execute("use kpezdmc_version1")
-    query = f"select b.budget_head_name,p.amount,p.payment_date from payments p join budget_heads b on b.budget_head_id = p.budget_head_id where p.plot_id={gplotid} and p.owner_id={gownerid} or p.industry_id = {gindid} order by p.payment_date desc;"
+    query = f"select b.budget_head_name,p.amount,p.payment_date from payments p join budget_heads b on b.budget_head_id = p.budget_head_id where p.industry_id = {gindid} order by p.payment_date desc;"
     cur.execute(query)
     pay_record = cur.fetchall()
     paytreeview.delete(*paytreeview.get_children())
@@ -93,7 +93,7 @@ def update_balancedata(gownerid,gplotid,gindid):
     global baltreeview,treeview,paytreeview
     cur, con = db.database_connect()
     cur.execute("use kpezdmc_version1")
-    query = f"select b.budget_head_name,bb.balance,bb.update_at from balance bb join budget_heads b on b.budget_head_id = bb.budget_head_id where bb.plot_id={gplotid} and bb.owner_id={gownerid} or bb.industry_id = {gindid} order by bb.update_at desc;"
+    query = f"select b.budget_head_name,bb.balance,bb.update_at from balance bb join budget_heads b on b.budget_head_id = bb.budget_head_id where bb.industry_id = {gindid} order by bb.update_at desc;"
     cur.execute(query)
     bal_record = cur.fetchall()
     baltreeview.delete(*baltreeview.get_children())

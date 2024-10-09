@@ -10,73 +10,117 @@ import database as db
 gplotid=None
 gownerid=None
 gindid=None
-
+def calculate_charges(area_in_acres,price_per_acre):
+    area_in_acres = float(area_in_acres)
+    price_per_acre = float(price_per_acre)
+    # 1 acre = 43,560 square feet
+    SQUARE_FEET_PER_ACRE = 43560
+    
+    # Convert acres to square feet
+    area_in_square_feet = area_in_acres * SQUARE_FEET_PER_ACRE
+    
+    # Calculate the price per square foot
+    price_per_square_foot = price_per_acre / SQUARE_FEET_PER_ACRE
+    
+    # Calculate the total price of the plot
+    plot_price = area_in_square_feet * price_per_square_foot
+    return plot_price
 # Global variable to set selection
-
+def industrydetails():
+   global reansferframe,gownerid,gplotid,gindid,industryinfo
+   industryinfo = tkinter.StringVar()
+   industryinfo.set("")
+   cur,con=db.database_connect()
+   cur.execute(f"select Ind_Status from industries where id = {gindid};")
+   indstatus = cur.fetchone()
+   cur.execute(f"select Area,Land_Type from plots where id = {gplotid};")
+   plotareatype = cur.fetchone()
+   if indstatus[0] == "Operational":
+       transferfee = f"5% Which is 650000 Per Acre"
+       rate = 650000
+   elif indstatus[0] == "Closed":
+       transferfee = f"7% Which is 850000 Per Acre"
+       rate = 850000
+   elif indstatus[0] == "Sick Unit":
+       transferfee = f"10% Which is 100000 Per Acre"
+       rate = 100000
+   price = calculate_charges(plotareatype[0],rate)
+        
+   
+   
+   Text = f"Industy Status is : {indstatus[0]} Land Type :{plotareatype[1]} and Area is : {plotareatype[0]} \nTransfer Fee is {transferfee} \n As Per KPEZDMC rules the charges will be {price}"
+   industryinfo.set(Text)
+   detailslabe = ct.CTkLabel(reansferframe,textvariable=industryinfo,font=("Arial",14),text_color="white")
+   detailslabe.place(x=180,y=280)
 # Function for transfer of plot
 
 def plot_transfer(cnicentry,nameentry,mobileentery,emmailentery,addressentry,dateentery):
     global gownerid,gplotid,gindid 
     try:
         cur,con = db.database_connect()
-        cur.execute(f"Select id from ownertable where cnic = {cnicentry.get()};")
-        confirm = messagebox.askyesno("Confirm Update", "Do you want to update the Record?")
-        if confirm:
-            result1 = cur.fetchone()
-            print(f"resutl {result1}")
-            if result1 is not None:
-                ownerid = result1[0]
-                print(gownerid,gplotid,gindid,ownerid)
-            else:         
-                # Data Entery into OWNERTABLE 
-                ownerid = db.get_id("ownertable") # Get Owner Id Auto increment by 1
-                # Define the SQL query to insert data
-                insert_query = """INSERT INTO ownertable (id,cnic,ownname,mobile,email,address,created_at) 
-                                                        VALUES (%s, %s, %s,%s,%s,%s,%s)"""
-
-                # Cureent Date
-                current_date = datetime.now()
-
-                # Format the current date
-                formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")  # Example format: 2024-09-03
-                
-                # Data to be inserted
-                data = (ownerid,cnicentry.get(),nameentry.get(),mobileentery.get(),emmailentery.get(),
-                            addressentry.get(),formatted_date)
-
-                # Execute the query
-                cur.execute(insert_query, data) 
-                con.commit()
-            cur,con = db.database_connect()
-            cur.execute(f"select id from plot_ownership where plot_id = {gplotid};")
-            plotid = cur.fetchone()
-            plotownershipid = plotid[0]
-            print(plotownershipid)
-            # Prepare update query
-            update_query = """
-            UPDATE plot_ownership
-            SET  
-                owner_id = %s, 
-                start_date = %s,  
-                po_status = %s, 
-                updated_at = %s
-            WHERE id = %s
-            """
-            print(dateentery.get())
-
-            # Values to update
-            update_values = (ownerid,dateentery.get(),'Treansferd',dateentery.get(),plotownershipid)
-
-            # Execute the update
-            cur.execute(update_query,update_values)
-
-            # Commit the transaction
-            con.commit()
-
-            print(f"Record with ID {plotownershipid} updated successfully.")
-            treeview_data()
+        cur.execute(f"select balance from balance where industry_id = {gindid} and balance > 0;")
+        ifbalance = cur.fetchall()
+        if ifbalance:
+            messagebox.showerror("Dues","First Clear All Pending Dues")
         else:
-            messagebox.INFO("Cancelled","Update cancelled by the user")
+            cur.execute(f"Select id from ownertable where cnic = {cnicentry.get()};")
+            confirm = messagebox.askyesno("Confirm Update", "Do you want to update the Record?")
+            if confirm:
+                result1 = cur.fetchone()
+                print(f"resutl {result1}")
+                if result1 is not None:
+                    ownerid = result1[0]
+                    print(gownerid,gplotid,gindid,ownerid)
+                else:         
+                    # Data Entery into OWNERTABLE 
+                    ownerid = db.get_id("ownertable") # Get Owner Id Auto increment by 1
+                    # Define the SQL query to insert data
+                    insert_query = """INSERT INTO ownertable (id,cnic,ownname,mobile,email,address,created_at) 
+                                                            VALUES (%s, %s, %s,%s,%s,%s,%s)"""
+
+                    # Cureent Date
+                    current_date = datetime.now()
+
+                    # Format the current date
+                    formatted_date = current_date.strftime("%Y/%m/%d %H:%M:%S")  # Example format: 2024-09-03
+                    
+                    # Data to be inserted
+                    data = (ownerid,cnicentry.get(),nameentry.get(),mobileentery.get(),emmailentery.get(),
+                                addressentry.get(),formatted_date)
+
+                    # Execute the query
+                    cur.execute(insert_query, data) 
+                    con.commit()
+                cur,con = db.database_connect()
+                cur.execute(f"select id from plot_ownership where plot_id = {gplotid};")
+                plotid = cur.fetchone()
+                plotownershipid = plotid[0]
+                print(plotownershipid)
+                # Prepare update query
+                update_query = """
+                UPDATE plot_ownership
+                SET  
+                    owner_id = %s, 
+                    start_date = %s,  
+                    po_status = %s, 
+                    updated_at = %s
+                WHERE id = %s
+                """
+                print(dateentery.get())
+
+                # Values to update
+                update_values = (ownerid,dateentery.get(),'Treansferd',dateentery.get(),plotownershipid)
+
+                # Execute the update
+                cur.execute(update_query,update_values)
+
+                # Commit the transaction
+                con.commit()
+
+                print(f"Record with ID {plotownershipid} updated successfully.")
+                treeview_data()
+            else:
+                messagebox.INFO("Cancelled","Update cancelled by the user")
     except Error as e:
             messagebox.showerror("Error",f"Database error : {e}")
     finally:
@@ -149,11 +193,15 @@ def clear_treeview(tree):
 
 # Select Data from tree
 def select_data(event):
-    global gownerid,gplotid,gindid,oldname,treeview,selected_item_global 
+    global gownerid,gplotid,gindid,oldname,treeview,selected_item_global, industryinfo
+
+    industryinfo = tkinter.StringVar()
+    industryinfo.set("Industry Details")
     row = []
     selected_item = treeview.selection()  # Get selected item
     if selected_item:
         selected_item_global = selected_item[0]  # Save the selection globally
+        
         row = treeview.item(selected_item[0], "values")
         print(f"Selected: {row}")
         print(row)
@@ -173,7 +221,7 @@ def select_data(event):
     else:
         print("No row selected")
           # Clear the global if no row is selected
-    
+    industrydetails()
   
     print(gplotid,gownerid,gindid)
 
@@ -243,7 +291,7 @@ def transfer(app):
     gplotid = None
     gownerid = None
     gindid = None
-    global treeview,baltreeview,paytreeview,oldname,oldstatus,newstatus,newstatuscombo,oldnature
+    global treeview,baltreeview,paytreeview,oldname,oldstatus,newstatus,newstatuscombo,industryinfo,reansferframe
     fontlable = ("Poppins",14)
     fontlmenu = ("Poppins",18,"bold")
     fontentry = ("Poppins",10,"bold")
@@ -256,11 +304,12 @@ def transfer(app):
     btnframe.place(x=40,y=5)
     treeframe =ct.CTkFrame(reansferframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=3,border_color="#85929e")
     treeframe.place(x=0,y=60)
-    ownerframe = ct.CTkFrame(reansferframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#04747e")
-    ownerframe.place(x=0,y=330)
+   
+    ownerframe = ct.CTkFrame(reansferframe,fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,border_width=2,border_color="#04747e",height=50,width=500)
+    ownerframe.place(x=0,y=375)
     transferbtn = ct.CTkButton(reansferframe,text="Transfer",fg_color="#2c3e50",bg_color="#17202a",corner_radius=5,font=("Arial",20,'bold'),
                               border_width=2,border_color="#85929e",width=200,height=60,command=lambda:plot_transfer(cnicentry,nameentry,mobileentery,emmailentery,addressentry,dateentery))
-    transferbtn.place(x=300,y=480)
+    transferbtn.place(x=300,y=510)
     photo_image = db.image_read(r"D:\Python\KPEZDMC\images\back.png")
     #tkinter.PhotoImage(file=r"D:\Python\KPEZDMC\images\back.png")
     homebtn = ct.CTkButton(backframe,image=photo_image,text="",font=("Arial",20,'bold'),width=30,hover_color="#1b4f72",fg_color="#17202a",bg_color="#17202a",
@@ -293,7 +342,7 @@ def transfer(app):
     cols = ("Plot #","Zone","Area","Owner","Status","indname","nature","Plot ID","Owner ID","Indid")
     vsb = ttk.Scrollbar(treeframe, orient="vertical")
     h_scroll = ttk.Scrollbar(reansferframe, orient="horizontal")
-    treeview = ttk.Treeview(treeframe,columns = cols, show="headings",height=8,
+    treeview = ttk.Treeview(treeframe,columns = cols, show="headings",height=6,
                             yscrollcommand=vsb.set,xscrollcommand=h_scroll.set)
 
     treeview.column("Plot #", width=50,stretch=False)
