@@ -97,7 +97,7 @@ def updated_nature(newnaturecombo):
                     cur.execute(update_query)
                     con.commit()
                     messagebox.showinfo("Success", "Record Updated Successfully!")
-                    db.update_balancedata_if_nature_changed(gownerid,gplotid,gindid)
+                    #db.update_balancedata_if_nature_changed(gownerid,gplotid,gindid)
               
                 #clear_fields(newnameentery)
         except Error as e:
@@ -175,7 +175,7 @@ def update_name(newnameentery):
                     cur.execute(update_query)
                     con.commit()
                     messagebox.showinfo("Success", "Record Updated Successfully!")
-                    db.update_balancedata_if_name_changed(gownerid,gplotid,gindid)
+                    #db.update_balancedata_if_name_changed(gownerid,gplotid,gindid)
                     treeview_data()
                 #clear_fields(newnameentery)
                 

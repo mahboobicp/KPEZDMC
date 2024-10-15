@@ -147,43 +147,43 @@ def generate_report(industry,indusid):
     elements.append(Spacer(1, 12))
 
     # Fetch industry balance and budget head data
-    balance_query = f"SELECT bh.budget_head_name, b.balance, b.max_balance FROM balance b JOIN budget_heads bh ON b.budget_head_id = bh.budget_head_id WHERE b.industry_id = {indusid};"
+    balance_query = f"SELECT bh.budget_head_name, b.balance, b.max_balance FROM balance b JOIN budget_heads bh ON b.budget_head_id = bh.budget_head_id WHERE b.industry_id = {indusid} and b.balance <> 0;"
     cursor.execute(balance_query)
     balances = cursor.fetchall()
+    if balances:
+        # Convert balance data to DataFrame for chart generation
+        balance_df = pd.DataFrame(balances)
 
-    # Convert balance data to DataFrame for chart generation
-    balance_df = pd.DataFrame(balances)
 
 
+        # Save chart as an image (PDF-compatible)
+    # chart_image = chart.to_image(format='png')
 
-    # Save chart as an image (PDF-compatible)
-   # chart_image = chart.to_image(format='png')
+        # Add chart to PDF
+    
 
-    # Add chart to PDF
-   
+        elements.append(Paragraph(f"<b>Industry Outstanding Dues</b><br/>",custom_style))
+        # Display balance data in table format
+        balance_table_data = [[Paragraph(f'<b>Budget Head</b>',custom_stylef_for_cell),Paragraph(f'<b>Balance</b>',custom_stylef_for_cell)]]
+        for balance in balances:
+            balance_table_data.append([Paragraph(balance[0],custom_stylef_for_cell),Paragraph(f"{balance[1]}",custom_stylef_for_cell)])
+        
 
-    elements.append(Paragraph(f"<b>Industry Outstanding Dues</b><br/>",custom_style))
-    # Display balance data in table format
-    balance_table_data = [[Paragraph(f'<b>Budget Head</b>',custom_stylef_for_cell),Paragraph(f'<b>Balance</b>',custom_stylef_for_cell)]]
-    for balance in balances:
-        balance_table_data.append([Paragraph(balance[0],custom_stylef_for_cell),Paragraph(f"{balance[1]}",custom_stylef_for_cell)])
-      
-
-    balance_table = Table(balance_table_data)
-    balance_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('LEFTPADDING', (0, 0), (-1, -1), 10),              # Space inside the left of the cells
-        ('RIGHTPADDING', (0, 0), (-1, -1), 10),             # Space inside the right of the cells
-        ('TOPPADDING', (0, 0), (-1, -1), 5),                # Space inside the top of the cells
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),             # Space inside the bottom of the cells
-    ]))
-    elements.append(balance_table)
+        balance_table = Table(balance_table_data)
+        balance_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),              # Space inside the left of the cells
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),             # Space inside the right of the cells
+            ('TOPPADDING', (0, 0), (-1, -1), 5),                # Space inside the top of the cells
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),             # Space inside the bottom of the cells
+        ]))
+        elements.append(balance_table)
 ####################################################3
      
     # Fetch industry Payments and budget head data
@@ -193,15 +193,15 @@ def generate_report(industry,indusid):
    # chart_image = chart.to_image(format='png')
 
     # Add chart to PDF
-   
+    totalpyments = 0
     elements.append(Spacer(1, 24))
     elements.append(Paragraph(f"<b>Industry Payments History</b><br/>",custom_style))
     # Display balance data in table format
     payments_table_data = [[Paragraph(f'<b>Budget Head</b>',custom_stylef_for_cell),Paragraph(f'<b>Paid Amount</b>',custom_stylef_for_cell),Paragraph(f'<b>Payment Date</b>',custom_stylef_for_cell)]]
     for payment in payments:
         payments_table_data.append([Paragraph(payment[0],custom_stylef_for_cell),Paragraph(f"{payment[1]}",custom_stylef_for_cell),Paragraph(f"{payment[2]}",custom_stylef_for_cell)])
-      
-
+        totalpyments = totalpyments + payment[1]
+    payments_table_data.append([Paragraph(f'<b>Grand Total</b>',custom_stylef_for_cell),Paragraph(f'<b>{totalpyments}</b>',custom_stylef_for_cell),''])
     payment_table = Table(payments_table_data)
     payment_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
@@ -243,59 +243,6 @@ def generate_report(industry,indusid):
     elements.append(Paragraph(f"<b>Industry Operations Details</b><br/>",custom_style))
     elements.append(audit_table)
 #############################################################################
-    elements.append(Spacer(1, 24))
-
-    # Fetch industry audit data
-    audit_query = f"SELECT changed_field, old_value, new_value, changed_at FROM industries_audit WHERE industry_id = {indusid};"
-    audit_plot =f"""
-                SELECT 
-                    apo.plot_id,
-                    apo.po_status,
-                    apo.start_date,
-                    old_owner.OwnName AS old_owner_name,
-                    old_owner.CNIC AS old_owner_cnic,
-                    apo.end_date,
-                    apo.change_type,
-                    new_owner.OwnName AS new_owner_name,
-                    new_owner.CNIC AS new_owner_cnic,
-                    apo.changed_at
-                FROM 
-                    audit_plot_ownership apo
-                LEFT JOIN 
-                    OwnerTable old_owner ON apo.owner_id = old_owner.id  -- Get old owner details
-                LEFT JOIN 
-                    OwnerTable new_owner ON apo.new_owner_id = new_owner.id  -- Get new owner details
-                WHERE
-                    plot_id = {indusid} AND apo.new_owner_id IS NOT NULL
-                ORDER BY 
-                    apo.plot_id DESC;
-                """
-    cursor.execute(audit_plot)
-    audits_plot = cursor.fetchall()
-
-    # Display industry audit details in a table
-    audit_plot_table_data = [[Paragraph('<b>Plot ID</b>',custom_stylef_for_cell1), Paragraph('<b>Plot Status</b>',custom_stylef_for_cell1),
-                              Paragraph('<b>Allotment Date</b>',custom_stylef_for_cell1), Paragraph('<b>Old Owner</b>',custom_stylef_for_cell),
-                              Paragraph('<b>Owner CNIC</b>',custom_stylef_for_cell1),Paragraph('<b>End Date</b>',custom_stylef_for_cell1),
-                              Paragraph('<b>New Status</b>',custom_stylef_for_cell1),Paragraph('<b>New Owner</b>',custom_stylef_for_cell1),
-                              Paragraph('<b>Owner CNIC</b>',custom_stylef_for_cell1),Paragraph('<b>Changed Date</b>',custom_stylef_for_cell1)]]
-    for audit in audits_plot:
-        audit_plot_table_data.append([audit[0], audit[1], audit[2], audit[3],audit[4],audit[5],audit[6],audit[7],audit[8],audit[9]])
-
-    audit_plot_table = Table(audit_plot_table_data)
-    audit_plot_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ]))
-    #canvas.saveState()
-    #canvas.setPageSize(landscape(A4))
-    elements.append(Paragraph(f"<b>Plot Allotment Details Details</b><br/>",custom_style))
-    elements.append(audit_plot_table)
 
     # Build the PDF
     doc.build(elements,onFirstPage=add_header_footer, onLaterPages=add_header_footer)

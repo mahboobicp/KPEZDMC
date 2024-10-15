@@ -128,7 +128,7 @@ def update_balancedata_if_nature_changed(ownerid,plotid,indid):
         # Data to be inserted
          balance_id = get_balance_id("balance","balance_id")
         # print(budgetheadid)
-         data = (balance_id,ownerid,plotid,indid,budgetid,10000,formatted_date)
+         data = (balance_id,ownerid,plotid,indid,budgetid,100000,formatted_date)
 
         # Execute the query
          cur.execute(insert_query_balance, data)
