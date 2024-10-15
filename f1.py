@@ -6,23 +6,25 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 import matplotlib.pyplot as plt
 import mysql.connector
+from reportlab.platypus import Spacer
 from datetime import datetime
 import database as db
 from reportlab.lib.pagesizes import A4, letter
-def add_footer(canvas, doc):
-    # Path to the image file
-    image_path = r"D:\Python\KPEZDMC\images\footer.png"
+def add_header_footer(canvas, doc):
+    header_image_path = r"D:\Python\KPEZDMC\images\comlogo.png"
+    footer_image_path = r"D:\Python\KPEZDMC\images\footer.png"
+    width, height = A4
     
-    # Position the image at the bottom left (adjust values for positioning)
-    image_width = 7 * inch  # Image width (in inches)
-    image_height = 0.5 * inch  # Image height (in inches)
+    # Add header image
+    canvas.drawImage(header_image_path, x=20, y=height - 60, width=550, height=50)  # Adjust positioning
     
-    # X and Y positions for the image
-    x_position = 0.5 * inch  # Left margin
-    y_position = 0.5 * inch  # Footer height from bottom of the page
-    
-    # Draw the image on the canvas
-    canvas.drawImage(image_path, x_position, y_position, width=image_width, height=image_height)
+    # Add footer image
+    canvas.drawImage(footer_image_path, x=32, y=30, width=500, height=50)  # Adjust positioning
+
+    # Add page number in footer (optional)
+    canvas.setFont("Helvetica", 10)
+    page_num_text = f"Page {doc.page}"
+    canvas.drawRightString(width - 30, 40, page_num_text)
 # Function to generate industry Statement
 def fetch_statement(industry_id):
     cursor, con = db.database_connect()
@@ -100,13 +102,8 @@ def generate_pdf(indid):
     doc.rightMargin = right_margin
     # Create a list for the PDF elements
     elements = []
-
-    # Add company logo
-    logo = Image('D:\Python\KPEZDMC\images\comlogo.png')
-    logo.width = 1 * inch
-    logo.height = 1 * inch
-    elements.append(logo)
-
+    elements.append(Spacer(1, 60))
+    #elements.append("<br/><br/>")
     # Prepare styles
     styles = getSampleStyleSheet()
     styles['Normal'].fontSize = 12  # Set font size to 12
@@ -273,7 +270,7 @@ def generate_pdf(indid):
     elements.append(Paragraph(closing_message,custom_style))
     elements.append(Paragraph('Accounts Officer NEZ',right_aligned_style))
     # Build the PDF
-    doc.build(elements,onFirstPage=add_footer, onLaterPages=add_footer)
+    doc.build(elements,onFirstPage=add_header_footer, onLaterPages=add_header_footer)
     print(f"PDF generated successfully: {pdf_filename}")
 
 # Geneerate pdf for statement
@@ -296,12 +293,8 @@ def generate_pdf_statement(indid):
     # Create a list for the PDF elements
     elements = []
 
-    # Add company logo
-    logo = Image('D:\Python\KPEZDMC\images\comlogo.png')
-    logo.width = 1 * inch
-    logo.height = 1 * inch
-    elements.append(logo)
-
+  
+    elements.append(Spacer(1, 60))
     # Prepare styles
     styles = getSampleStyleSheet()
     styles['Normal'].fontSize = 12  # Set font size to 12
@@ -388,7 +381,7 @@ def generate_pdf_statement(indid):
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
     ]))
     elements.append(statementtable)
-    doc.build(elements)
+    doc.build(elements,onFirstPage=add_header_footer, onLaterPages=add_header_footer)
     print(f"PDF generated successfully: {pdf_filename}")
 
 

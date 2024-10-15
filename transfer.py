@@ -10,6 +10,67 @@ import database as db
 gplotid=None
 gownerid=None
 gindid=None
+
+def updatetransferfee(head,amount,gplotid,gownerid,gindid):
+    cursor,connection = db.database_connect()
+        # Specify the budget head (e.g., Maintenance, Bore Hole, AGR, etc.)
+    budget_head_name = head
+    charges = float(amount)
+
+    # Get the budget_head_id for the specified budget head
+    cursor.execute("SELECT budget_head_id FROM budget_heads WHERE budget_head_name = %s", (budget_head_name,))
+    budget_head_id = cursor.fetchone()
+    if budget_head_id is None:
+        cursor.execute("Select budget_head_id from budget_heads order by budget_head_id desc limit 1")
+        lastid = cursor.fetchone()
+        lastid1 = lastid[0] + 1
+        budget_head_id = lastid1
+        print(lastid1)
+        cursor.execute(
+            """
+            INSERT INTO budget_heads(budget_head_id,budget_head_name)
+            VALUES (%s, %s)
+            """,
+            (lastid1,budget_head_name)
+        )
+        connection.commit()
+    elif budget_head_id:
+        budget_head_id = budget_head_id[0]
+    else:
+        print("Database Error")
+        exit()
+   
+    #print(industry)
+    # Check if the industry already has a balance entry for the specified budget head
+    balance = f"SELECT balance_id, balance FROM balance WHERE industry_id = {gindid} AND budget_head_id = {budget_head_id};"
+    cursor.execute(balance)
+
+    existing_balance = cursor.fetchone()
+    # Example logic for calculating the balance based on covered area (you can modify this logic)
+    now = datetime.now()
+
+    if existing_balance:
+        # Update the balance if the record exists
+        balanceid, current_balance = existing_balance
+        updatequery = """
+            UPDATE balance 
+            SET balance = balance + %s,update_at = %s 
+            WHERE balance_id = %s
+            """
+        cursor.execute(updatequery,(charges,now,balanceid))
+    else:
+        # Insert a new record if no balance entry exists for the industry
+        cursor.execute(
+            """
+            INSERT INTO balance (owner_id, plot_id, industry_id, budget_head_id, balance, max_balance, update_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """,
+            (gownerid, gplotid, gindid, budget_head_id, charges, charges, now)  # Assuming owner_id and plot_id are not relevant here
+        )
+
+    # Commit the transaction
+    connection.commit()
+
 def calculate_charges(area_in_acres,price_per_acre):
     area_in_acres = float(area_in_acres)
     price_per_acre = float(price_per_acre)
@@ -27,7 +88,7 @@ def calculate_charges(area_in_acres,price_per_acre):
     return plot_price
 # Global variable to set selection
 def industrydetails():
-   global reansferframe,gownerid,gplotid,gindid,industryinfo
+   global reansferframe,gownerid,gplotid,gindid,industryinfo,rate,price
    industryinfo = tkinter.StringVar()
    industryinfo.set("")
    cur,con=db.database_connect()
@@ -35,27 +96,28 @@ def industrydetails():
    indstatus = cur.fetchone()
    cur.execute(f"select Area,Land_Type from plots where id = {gplotid};")
    plotareatype = cur.fetchone()
-   if indstatus[0] == "Operational":
-       transferfee = f"5% Which is 650000 Per Acre"
+   if indstatus[0] == "Operational" or indstatus[0] == "Closed":
+       transferfee = f" 650000 Per Acre"
        rate = 650000
-   elif indstatus[0] == "Closed":
-       transferfee = f"7% Which is 850000 Per Acre"
-       rate = 850000
-   elif indstatus[0] == "Sick Unit":
-       transferfee = f"10% Which is 100000 Per Acre"
-       rate = 100000
+   elif indstatus[0] == "Under Construction":
+       transferfee = f"1040000 Per Acre"
+       rate = 1040000
+   elif indstatus[0] == "Vacant":
+       transferfee = f"1300000 Per Acre"
+       rate = 1300000
    price = calculate_charges(plotareatype[0],rate)
+   
         
    
    
-   Text = f"Industy Status is : {indstatus[0]} Land Type :{plotareatype[1]} and Area is : {plotareatype[0]} \nTransfer Fee is {transferfee} \n As Per KPEZDMC rules the charges will be {price}"
+   Text = f"Industry Status is : {indstatus[0]} Land Type :{plotareatype[1]} and Area is : {plotareatype[0]} \nTransfer Fee is {transferfee} \n As Per KPEZDMC rules the charges will be {price}"
    industryinfo.set(Text)
-   detailslabe = ct.CTkLabel(reansferframe,textvariable=industryinfo,font=("Arial",14),text_color="white")
+   detailslabe = ct.CTkLabel(reansferframe,textvariable=industryinfo,font=("Arial",16),text_color="white")
    detailslabe.place(x=180,y=280)
 # Function for transfer of plot
 
 def plot_transfer(cnicentry,nameentry,mobileentery,emmailentery,addressentry,dateentery):
-    global gownerid,gplotid,gindid 
+    global gownerid,gplotid,gindid,rate,price
     try:
         cur,con = db.database_connect()
         cur.execute(f"select balance from balance where industry_id = {gindid} and balance > 0;")
@@ -121,6 +183,7 @@ def plot_transfer(cnicentry,nameentry,mobileentery,emmailentery,addressentry,dat
                 treeview_data()
             else:
                 messagebox.INFO("Cancelled","Update cancelled by the user")
+            updatetransferfee("Transfer Fee",price,gplotid,gownerid,gindid)    
     except Error as e:
             messagebox.showerror("Error",f"Database error : {e}")
     finally:
@@ -196,7 +259,7 @@ def select_data(event):
     global gownerid,gplotid,gindid,oldname,treeview,selected_item_global, industryinfo
 
     industryinfo = tkinter.StringVar()
-    industryinfo.set("Industry Details")
+    industryinfo.set("gfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
     row = []
     selected_item = treeview.selection()  # Get selected item
     if selected_item:

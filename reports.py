@@ -9,6 +9,9 @@ from mysql.connector import Error
 import database as db
 from f1 import generate_pdf,generate_pdf_statement
 import allinvoices as aip
+import zonereport
+import plotreport
+from industrydetails import industrydata
 gplotid=None
 gownerid=None
 gindid=None
@@ -29,6 +32,10 @@ def save_record(reporttype,reportoption):
     global gplotid,gownerid,gindid,treeview
     if reporttype.get() == "" or reportoption.get() == "":
         messagebox.showerror("Error","All fileds are required")
+    elif reporttype.get() == "Select Option":
+        messagebox.showerror("Error","First Select Report Type")
+    elif reporttype.get() == "Industry Details" and reportoption.get() == "Select from Above":
+        industrydata(gindid)
     elif reporttype.get() == "Industry Invoice" and reportoption.get() == "Select from Above":
         generate_pdf(gindid)
         messagebox.showerror("Report","Invoice Generated Successfuly")
@@ -38,8 +45,14 @@ def save_record(reporttype,reportoption):
     elif reporttype.get() == "Industry Invoice" and reportoption.get() == "All Industries":
         aip.main_code()  # Get selected item
         messagebox.showerror("Report","All Industry Statement Generaated")
+    elif reporttype.get() == "Zone Report":
+        zonereport.generate_zone_report()  # Get selected item
+        messagebox.showerror("Report","Zone Report Generaated Successfuly")
+    elif reporttype.get() == "Plot Details":
+        plotreport.plotdata(gplotid)  # Get selected item
+        messagebox.showerror("Report","Plot Report Generaated Successfuly")
     else:
-        messagebox.showerror("Error","Select Optioni")
+        messagebox.showerror("Error","Select Correct Option")
         
 
 # Select Data from tree
@@ -251,8 +264,8 @@ def reports(app):
     # Extract the budget heads from the results and return them as a list
     budget_heads1 = [row[0] for row in results]
     global budgetheadcombo
-    reporttype = ct.CTkComboBox(paymentsframe,font=fontentry,width=180,command=update_entry,
-                                values=["Industry Invoice","Industry Statement","Executive Report"],border_width=2,border_color="#17202a",
+    reporttype = ct.CTkComboBox(paymentsframe,font=fontentry,width=180,
+                                values=["Select Option","Industry Invoice","Industry Details","Industry Statement","Plot Details","Zone Report","Executive Report"],border_width=2,border_color="#17202a",
                                 fg_color="#154360",text_color="White",button_color="#17202a",button_hover_color="#2471a3")
     reporttype.grid(row=1,column=1)
     global entry_var,applytocombo

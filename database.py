@@ -264,7 +264,7 @@ def updatebudget(head,amount):
         existing_balance = cursor.fetchone()
         print(industry)
         # Example logic for calculating the balance based on covered area (you can modify this logic)
-        if budget_head_name == "AGR" or budget_head_name == "Maintenance" or budget_head_name == "Land Price":
+        if budget_head_name == "AGR" or budget_head_name == "Maintenance" or budget_head_name == "Lease Money":
             new_balance = calculate_maintenance_price(coverd_area,charges)
         else:
             new_balance = charges
@@ -345,7 +345,7 @@ def updatebudgetforsingle(head,amount,gplotid,gownerid,gindid):
     existing_balance = cursor.fetchone()
     print(industries)
     # Example logic for calculating the balance based on covered area (you can modify this logic)
-    if budget_head_name == "AGR" or budget_head_name == "Maintenance" or budget_head_name == "Land Price":
+    if budget_head_name == "AGR" or budget_head_name == "Maintenance" or budget_head_name == "Lease Money":
         new_balance = calculate_maintenance_price(coverd_area,charges)
     else:
         new_balance = charges
