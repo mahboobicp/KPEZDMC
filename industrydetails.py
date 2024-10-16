@@ -38,7 +38,7 @@ def industrydata(indid):
     cursor,con = db.database_connect()
 
     # Query to fetch industry details, owner details, and plot details
-    industry_query = f"SELECT i.Ind_Name, i.Ind_Nature, i.Ind_Status, i.Coverd_Area, o.OwnName, o.CNIC, o.Mobile, o.Email, o.Address, p.id, p.Location, p.Plot_Status, p.Area FROM industries i JOIN plot_ownership po ON i.plot_ID = po.plot_id JOIN OwnerTable o ON po.owner_id = o.id JOIN Plots p ON i.plot_ID = p.ID where i.id = {indid};"
+    industry_query = f"SELECT i.Ind_Name, i.Ind_Nature, i.Ind_Status, i.Coverd_Area, o.OwnName, o.CNIC, o.Mobile, o.Email, o.Address, p.plot_number, p.Location, p.Plot_Status, p.Area FROM industries i JOIN plot_ownership po ON i.plot_ID = po.plot_id JOIN OwnerTable o ON po.owner_id = o.id JOIN Plots p ON i.plot_ID = p.ID where i.id = {indid};"
     
     industries = {}
     cursor.execute(industry_query)
@@ -79,13 +79,32 @@ def generate_report(industry,indusid):
     custom_style = ParagraphStyle(
     name="CustomStyle",
     fontName="Helvetica",  # Change the font (e.g., Helvetica, Times-Roman, Courier)
-    fontSize=14,  # Font size
+    fontSize=12,  # Font size
     leading=10,  # Line spacing (leading is space between lines)
     spaceAfter=10,  # Space after the paragraph
     )
-    custom_style.alignment = 1
+    custom_style.alignment = 0
+    ##############
+    custom_style_bulits = ParagraphStyle(
+    name="CustomStyle",
+    fontName="Helvetica",  # Change the font (e.g., Helvetica, Times-Roman, Courier)
+    fontSize=10,  # Font size
+    leading=15,  # Line spacing (leading is space between lines)
+    spaceAfter=15,  # Space after the paragraph
+    )
+    custom_style_bulits.alignment = 0
+    custom_style_bulits.leftIndent = 50
     # Add industry, owner, and plot details
     styles = getSampleStyleSheet()
+    elements.append(Paragraph(f"<b> 👉 THIS REPORT PRESENTS THE FOLLOWING KEY INFORMATION :-</b><br/>",custom_style))
+    startpar = f"""        1. INDUSTRY BASIC INFORMATION<br/>
+                           2. OWNER AND PLOT DETAILS<br/>
+                           3. INDUSTRY OUTSTANDING DUES<br/>
+                           4. PAYMENT AGAINST EACH HEAD<br/>
+                           5. INDUSTRY PAYMENTS RECORD<br/>
+                           6. INDUSTRY OPERATIONS DETAILS<br/>
+                """
+    elements.append(Paragraph(startpar,custom_style_bulits))
     # Industry Details Data In Table
     ind_data = [
         [Paragraph(f'<b>Title</b>', custom_stylef_for_cell), Paragraph('Details', custom_stylef_for_cell)],
@@ -111,10 +130,10 @@ def generate_report(industry,indusid):
         ('BOTTOMPADDING', (0, 0), (-1, -1), 8),             # Space inside the bottom of the cells
     ]))
     
-    elements.append(Paragraph(f"<b>INDUSTRY INFORMATION</b><br/>",custom_style))
+    elements.append(Paragraph(f"<b>1. INDUSTRY BASIC INFORMATION</b><br/>",custom_style))
     elements.append(balance_table)
     elements.append(Spacer(1, 24))
-    elements.append(Paragraph(f"<b>OWNER AND PLOT DETAILS</b><br/>",custom_style))
+    elements.append(Paragraph(f"<b>2. OWNER AND PLOT DETAILS</b><br/>",custom_style))
     # owner Details Data In Table
     owner_data = [
         [Paragraph(f'<b>Owner Details</b>', custom_stylef_for_cell), Paragraph('<b>Plot Details</b>', custom_stylef_for_cell)],
@@ -162,13 +181,14 @@ def generate_report(industry,indusid):
         # Add chart to PDF
     
 
-        elements.append(Paragraph(f"<b>Industry Outstanding Dues</b><br/>",custom_style))
+        elements.append(Paragraph(f"<b>3. INDUSTRY OUTSTANDING DUES</b><br/>",custom_style))
         # Display balance data in table format
+        outstandingamount = 0
         balance_table_data = [[Paragraph(f'<b>Budget Head</b>',custom_stylef_for_cell),Paragraph(f'<b>Balance</b>',custom_stylef_for_cell)]]
         for balance in balances:
             balance_table_data.append([Paragraph(balance[0],custom_stylef_for_cell),Paragraph(f"{balance[1]}",custom_stylef_for_cell)])
-        
-
+            outstandingamount = outstandingamount + balance[1]
+        balance_table_data.append([Paragraph(f'<b>Total Outstanding Dues</b>',custom_stylef_for_cell),Paragraph(f'<b>{outstandingamount}</b>',custom_stylef_for_cell)])
         balance_table = Table(balance_table_data)
         balance_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
@@ -185,6 +205,54 @@ def generate_report(industry,indusid):
         ]))
         elements.append(balance_table)
 ####################################################3
+       
+    # Fetch industry Payments and budget head data
+    payments_query = f"""
+                    SELECT 
+                        bh.budget_head_name, 
+                        SUM(p.amount)
+                    FROM 
+                        payments p
+                    JOIN 
+                        budget_heads bh ON p.budget_head_id = bh.budget_head_id
+                    where p.industry_id = {indusid} AND p.amount <> 0
+                    GROUP BY 
+                        bh.budget_head_name;
+                    """
+    cursor.execute(payments_query)
+    payments = cursor.fetchall()
+   # chart_image = chart.to_image(format='png')
+
+    # Add chart to PDF
+    totalpyments = 0
+    elements.append(Spacer(1, 24))
+    elements.append(Paragraph(f"<b>4. PAYMENT AGAINST EACH HEAD</b><br/>",custom_style))
+    # Display balance data in table format
+    payments_table_data = [[Paragraph(f'<b>Budget Head</b>',custom_stylef_for_cell),Paragraph(f'<b>Paid Amount</b>',custom_stylef_for_cell)]]
+    for payment in payments:
+        payments_table_data.append([Paragraph(payment[0],custom_stylef_for_cell),Paragraph(f"{payment[1]}",custom_stylef_for_cell)])
+        totalpyments = totalpyments + payment[1]
+    payments_table_data.append([Paragraph(f'<b>Grand Total</b>',custom_stylef_for_cell),Paragraph(f'<b>{totalpyments}</b>',custom_stylef_for_cell)])
+    payment_table = Table(payments_table_data)
+    payment_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('LEFTPADDING', (0, 0), (-1, -1), 10),              # Space inside the left of the cells
+        ('RIGHTPADDING', (0, 0), (-1, -1), 10),             # Space inside the right of the cells
+        ('TOPPADDING', (0, 0), (-1, -1), 5),                # Space inside the top of the cells
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),             # Space inside the bottom of the cells
+    ]))
+    elements.append(payment_table)
+   
+# End of Payment Summary aganist each budget head
+
+
+####################################################3
      
     # Fetch industry Payments and budget head data
     payments_query = f"select b.budget_head_name,p.amount,payment_date from payments p join budget_heads b on p.budget_head_id = b.budget_head_id where industry_id={indusid};"
@@ -195,7 +263,7 @@ def generate_report(industry,indusid):
     # Add chart to PDF
     totalpyments = 0
     elements.append(Spacer(1, 24))
-    elements.append(Paragraph(f"<b>Industry Payments History</b><br/>",custom_style))
+    elements.append(Paragraph(f"<b>5. INDUSTRY PAYMENTS RECORD</b><br/>",custom_style))
     # Display balance data in table format
     payments_table_data = [[Paragraph(f'<b>Budget Head</b>',custom_stylef_for_cell),Paragraph(f'<b>Paid Amount</b>',custom_stylef_for_cell),Paragraph(f'<b>Payment Date</b>',custom_stylef_for_cell)]]
     for payment in payments:
@@ -240,7 +308,7 @@ def generate_report(industry,indusid):
         ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
     ]))
-    elements.append(Paragraph(f"<b>Industry Operations Details</b><br/>",custom_style))
+    elements.append(Paragraph(f"<b>6. INDUSTRY OPERATIONS DETAILS</b><br/>",custom_style))
     elements.append(audit_table)
 #############################################################################
 
